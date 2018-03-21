@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="tracker" />
+		<Option pch_mode="2" />
+		<Option default_target="Release" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/tracker" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="dataset/01_david/verif.yml" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/tracker" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="alov300++/00alienmedia/07-MotionCoherence_video00004.yml" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-march=core2" />
+			<Add option="-O3" />
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-static" />
+			<Add option="-fexceptions" />
+			<Add option="-Wno-unused-variable" />
+			<Add option="-Wno-deprecated" />
+			<Add option="-Wno-deprecated-declarations" />
+			<Add option="-Wno-unused-result" />
+			<Add option="-Wno-sign-compare" />
+			<Add option="-I~/vlfeat -L~/vlfeat/bin/glnxa64/ -lvl" />
+			<Add directory="/usr/local/include" />
+			<Add directory="/home/helena/vlfeat" />
+		</Compiler>
+		<Linker>
+			<Add library="opencv_core" />
+			<Add library="opencv_highgui" />
+			<Add library="opencv_video" />
+			<Add library="opencv_imgproc" />
+			<Add library="/home/helena/vlfeat/bin/glnxa64/libvl.so" />
+			<Add library="/usr/lib/libopencv_legacy.so" />
+			<Add directory="libv" />
+			<Add directory="/usr/lib/" />
+			<Add directory=" /usr/share/lib" />
+			<Add directory="/usr/local/lib" />
+			<Add directory="../lib" />
+			<Add directory="./lib" />
+		</Linker>
+		<Unit filename="src/common/sift_utils.cpp" />
+		<Unit filename="src/common/sift_utils.hpp" />
+		<Unit filename="src/common/utils.cpp" />
+		<Unit filename="src/common/utils.hpp" />
+		<Unit filename="src/tracking/Detector.cpp" />
+		<Unit filename="src/tracking/Detector.hpp" />
+		<Unit filename="src/tracking/Integrator_Learning.cpp" />
+		<Unit filename="src/tracking/Integrator_Learning.hpp" />
+		<Unit filename="src/tracking/TLD.cpp" />
+		<Unit filename="src/tracking/TLD.hpp" />
+		<Unit filename="src/tracking/Tracker.cpp" />
+		<Unit filename="src/tracking/Tracker.hpp" />
+		<Unit filename="src/tracking/main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

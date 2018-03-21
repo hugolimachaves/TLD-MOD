@@ -1,0 +1,32 @@
+16/04/2015
+
+Instalar:
+	g++
+	freeglut3-dev
+	libopencv-dev
+	libopencv-highgui-dev
+	libopencv-video-dev
+	libopencv-imgproc-dev
+
+
+Executar: 
+	executável <caminho_arquivo_parametros_yml>
+
+Parametros:
+	video_type	=	0 para webcam, 1 para video, 2 para lista de imagens
+	filter		=	0 para nenhum, 1 para SSD, 2 para NCC, 4 para FB e soma para filtro combinado
+	window_size	=	tamanho da janela do LK
+	bb_path		=	caminho das bounding boxes (saída)
+	video_path	=	caminho do vídeo ou da lista de imagens. Automaticamente null para webcam
+	init_path	=	Caminho da bounding box inicial. Automaticamente null para webcam e vídeo
+	detect?		=	ativar detector. 0 para falso e 1 para verdadeiro
+	track?		=	ativar rastreador. 0 para falso e 1 para verdadeiro
+	detect_failure?	=	ativar detector de falhas do rastreador. 0 para falso e 1 para verdadeiro
+	show?		=	mostrar vídeo. 0 para falso e 1 para verdadeiro. Automaticamente verdadeiro para webcam
+	repeat_video?	=	repetir vídeo. 0 para falso e 1 para verdadeiro. Automaticamente falso para webcam
+	print_status?	=	imprimir status. 0 para falso e 1 para verdadeiro. Automaticamente falso para webcam
+
+
+
+
+Tamanho da janela é tamanho total, i.e., a janela será window_size x window_size
