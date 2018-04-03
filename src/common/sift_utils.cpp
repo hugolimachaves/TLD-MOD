@@ -2,15 +2,15 @@
 #include <math.h>
 
 //Converte Imagem do opencv para imagem do vlfeat
-vl_sift_pix *Mat2vl(Mat imgCV){
-	int width = imgCV.size().width,
-		height = imgCV.size().height;
-    uint8_t 	*cv_img = (uint8_t*)imgCV.data,
-				*cv_pixel = &cv_img[0];
-    vl_sift_pix *vl_img = (vl_sift_pix*)malloc(width*height*sizeof(vl_sift_pix)),
-				*vl_pixel = &vl_img[0];
-    for(int y = 0; y < height; y++){
-        for(int x = 0; x < width; x++){
+vl_sift_pix *Mat2vl(Mat imgCV)
+{
+	int width = imgCV.size().width,height = imgCV.size().height;
+    uint8_t 	*cv_img = (uint8_t*)imgCV.data,*cv_pixel = &cv_img[0];
+    vl_sift_pix *vl_img = (vl_sift_pix*)malloc(width*height*sizeof(vl_sift_pix)),*vl_pixel = &vl_img[0];
+    for(int y = 0; y < height; y++)
+    {
+        for(int x = 0; x < width; x++)
+        {
             *vl_pixel = (float)(*cv_pixel);
             vl_pixel++;
             cv_pixel++;
@@ -20,33 +20,34 @@ vl_sift_pix *Mat2vl(Mat imgCV){
 }
 
 //Desenha keypoints no frame
-void desenha_key(Mat frame, SiftFeature *keypoints){
+void desenha_key(Mat frame, SiftFeature *keypoints)
+{
     SiftFeature *kp;
-
     if(keypoints == NULL) return;
-
-    for (kp = keypoints; kp != NULL; kp = kp->next){
+    for (kp = keypoints; kp != NULL; kp = kp->next)
+    {
 		circle(frame, cvPoint(kp->point.x, kp->point.y), 0, Scalar(0.0, 255.0, 0.0), 1, 8, 0);
 		circle(frame, cvPoint(kp->point.x, kp->point.y), kp->radius, Scalar(255.0, 255.0, 255.0), 1, 8, 0);
 	}
 }
 
 ////Distância euclideana entre dois descritores
-double euclideanDistance(vl_sift_pix d1[DESCRIPTOR_SIFT_SIZE], vl_sift_pix d2[DESCRIPTOR_SIFT_SIZE]){
+double euclideanDistance(vl_sift_pix d1[DESCRIPTOR_SIFT_SIZE], vl_sift_pix d2[DESCRIPTOR_SIFT_SIZE])
+{
 	double dist = 0.;
 	for(int i = 0; i < DESCRIPTOR_SIFT_SIZE; i++) dist+= SQR(d2[i] - d1[i]);
 	return sqrt(dist);
 }
 
 //Extrai keypoints de gray_img
-SiftFeature* sift(Mat gray_img){
+SiftFeature* sift(Mat gray_img)
+{
     SiftFeature *root, *pointer, *pre_pointer;
-
 	if(gray_img.empty()) return NULL;
-
 	int ch, type;
 	type = matType(gray_img, ch);
-	if(type != UCHAR || ch != 1){
+	if(type != UCHAR || ch != 1)
+	{
 		printf("Invalid image.\n");
 		return NULL;
 	}
@@ -91,40 +92,37 @@ SiftFeature* sift(Mat gray_img){
 	pre_pointer = root->next = NULL;
 	pointer = root;
 
-	for(int j = 0; j < n_keys; j++){
-            pointer->point.x = keys[j].x;
-            pointer->point.y = keys[j].y;
-            pointer->radius = keys[j].sigma;
-            pointer->next = new SiftFeature();
-
-            n_angles = vl_sift_calc_keypoint_orientations(filter, angles, &keys[j]);
-
-            for (vl_size q = 0; q < (unsigned)n_angles; q++)
-                vl_sift_calc_keypoint_descriptor(filter, pointer->descriptor, &keys[j], angles[q]);
-
-            pre_pointer = pointer;
-            pointer = pointer->next;
+	for(int j = 0; j < n_keys; j++)
+	{
+        pointer->point.x = keys[j].x;
+        pointer->point.y = keys[j].y;
+        pointer->radius = keys[j].sigma;
+        pointer->next = new SiftFeature();
+        n_angles = vl_sift_calc_keypoint_orientations(filter, angles, &keys[j]);
+        for (vl_size q = 0; q < (unsigned)n_angles; q++)
+            vl_sift_calc_keypoint_descriptor(filter, pointer->descriptor, &keys[j], angles[q]);
+        pre_pointer = pointer;
+        pointer = pointer->next;
 	}
 
-    for(int i = 1; i < n_octaves; i++){
+    for(int i = 1; i < n_octaves; i++)
+    {
         err = vl_sift_process_next_octave(filter) ;
         if(err) break;
-
 		vl_sift_detect(filter);
 		VlSiftKeypoint const *keys = vl_sift_get_keypoints(filter);
         n_keys = vl_sift_get_nkeypoints(filter);
 
-        for (int j = 0; j < n_keys; j++){
+        for (int j = 0; j < n_keys; j++)
+        {
 			pointer->point.x = keys[j].x;
 			pointer->point.y = keys[j].y;
 			pointer->radius = keys[j].sigma;
 			pointer->next = new SiftFeature();
-
             n_angles = vl_sift_calc_keypoint_orientations(filter, angles, &keys[j]);
 
             for (vl_size q = 0; q < (unsigned)n_angles; q++)
                 vl_sift_calc_keypoint_descriptor(filter, pointer->descriptor, &keys[j], angles[q]);
-
             pre_pointer = pointer;
             pointer = pointer->next;
         }

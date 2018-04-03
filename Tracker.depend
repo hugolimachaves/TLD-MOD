@@ -1,0 +1,265 @@
+# depslib dependency file v1.0
+1522778711 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.cpp
+	"sift_utils.hpp"
+	<math.h>
+
+1522677326 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.hpp
+	<opencv2/highgui/highgui.hpp>
+	"vl/generic.h"
+	"vl/sift.h"
+	"vl/stringop.h"
+	"vl/pgm.h"
+	"vl/getopt_long.h"
+	"utils.hpp"
+
+1424866231 /usr/local/include/opencv2/highgui/highgui.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/highgui/highgui_c.h"
+
+1424866231 /usr/local/include/opencv2/core/core.hpp
+	"opencv2/core/types_c.h"
+	"opencv2/core/version.hpp"
+	<limits.h>
+	<algorithm>
+	<cmath>
+	<cstddef>
+	<complex>
+	<map>
+	<new>
+	<string>
+	<vector>
+	<sstream>
+	"opencv2/core/operations.hpp"
+	"opencv2/core/mat.hpp"
+
+1424866231 /usr/local/include/opencv2/core/types_c.h
+	<assert.h>
+	<stdlib.h>
+	<string.h>
+	<float.h>
+	<stdint.h>
+	<intrin.h>
+	<emmintrin.h>
+	<fastmath.h>
+	<math.h>
+	<ipl.h>
+	<ipl/ipl.h>
+	"tegra_round.hpp"
+	"emmintrin.h"
+
+1424866231 /usr/local/include/opencv2/core/version.hpp
+
+1424866231 /usr/local/include/opencv2/core/operations.hpp
+	<string.h>
+	<limits.h>
+	<ext/atomicity.h>
+	<bits/atomicity.h>
+	<limits>
+
+1424866231 /usr/local/include/opencv2/core/mat.hpp
+	<limits.h>
+	<string.h>
+
+1424866231 /usr/local/include/opencv2/highgui/highgui_c.h
+	"opencv2/core/core_c.h"
+
+1424866231 /usr/local/include/opencv2/core/core_c.h
+	"opencv2/core/types_c.h"
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/generic.h
+	"host.h"
+	"random.h"
+	<stdlib.h>
+	<stddef.h>
+	<time.h>
+	<assert.h>
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/host.h
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/random.h
+	"host.h"
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/sift.h
+	<stdio.h>
+	"generic.h"
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/stringop.h
+	"generic.h"
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/pgm.h
+	"generic.h"
+	"mathop.h"
+	<stdio.h>
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/mathop.h
+	"generic.h"
+	<math.h>
+	<float.h>
+
+1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/getopt_long.h
+	"generic.h"
+
+1522677361 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.hpp
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	"opencv2/legacy/legacy.hpp"
+	<iostream>
+
+1424866231 /usr/local/include/opencv2/imgproc/imgproc.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/types_c.h"
+
+1424866231 /usr/local/include/opencv2/imgproc/types_c.h
+	"opencv2/core/core_c.h"
+
+1424866231 /usr/local/include/opencv2/legacy/legacy.hpp
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/imgproc/imgproc_c.h"
+	"opencv2/features2d/features2d.hpp"
+	"opencv2/calib3d/calib3d.hpp"
+	"opencv2/ml/ml.hpp"
+	<iosfwd>
+	<limits>
+
+1424866231 /usr/local/include/opencv2/imgproc/imgproc_c.h
+	"opencv2/core/core_c.h"
+	"opencv2/imgproc/types_c.h"
+
+1424866231 /usr/local/include/opencv2/features2d/features2d.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/flann/miniflann.hpp"
+	<limits>
+
+1424866231 /usr/local/include/opencv2/flann/miniflann.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/flann/defines.h"
+
+1424866231 /usr/local/include/opencv2/flann/defines.h
+	"config.h"
+
+1424866231 /usr/local/include/opencv2/flann/config.h
+
+1424866231 /usr/local/include/opencv2/calib3d/calib3d.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/features2d/features2d.hpp"
+	"opencv2/core/affine.hpp"
+
+1424866231 /usr/local/include/opencv2/core/affine.hpp
+	<opencv2/core/core.hpp>
+
+1424866231 /usr/local/include/opencv2/ml/ml.hpp
+	"opencv2/core/core.hpp"
+	<limits.h>
+	<map>
+	<string>
+	<iostream>
+
+1522778177 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.cpp
+	"utils.hpp"
+	<math.h>
+
+1522778711 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
+	"Detector.hpp"
+
+1441311654 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.hpp
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	<opencv2/legacy/legacy.hpp>
+	"../common/utils.hpp"
+
+1522778227 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
+	"Integrator_Learning.hpp"
+
+1441312356 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.hpp
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	"../common/utils.hpp"
+	"../common/sift_utils.hpp"
+	"Detector.hpp"
+
+1441308950 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/main.cpp
+	<iostream>
+	<opencv2/opencv.hpp>
+	"TLD.hpp"
+
+1424866231 /usr/local/include/opencv2/opencv.hpp
+	"opencv2/core/core_c.h"
+	"opencv2/core/core.hpp"
+	"opencv2/flann/miniflann.hpp"
+	"opencv2/imgproc/imgproc_c.h"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/photo/photo.hpp"
+	"opencv2/video/video.hpp"
+	"opencv2/features2d/features2d.hpp"
+	"opencv2/objdetect/objdetect.hpp"
+	"opencv2/calib3d/calib3d.hpp"
+	"opencv2/ml/ml.hpp"
+	"opencv2/highgui/highgui_c.h"
+	"opencv2/highgui/highgui.hpp"
+	"opencv2/contrib/contrib.hpp"
+
+1424866231 /usr/local/include/opencv2/photo/photo.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/photo/photo_c.h"
+
+1424866231 /usr/local/include/opencv2/photo/photo_c.h
+	"opencv2/core/core_c.h"
+
+1424866231 /usr/local/include/opencv2/video/video.hpp
+	"opencv2/video/tracking.hpp"
+	"opencv2/video/background_segm.hpp"
+
+1424866231 /usr/local/include/opencv2/video/tracking.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+
+1424866231 /usr/local/include/opencv2/video/background_segm.hpp
+	"opencv2/core/core.hpp"
+	<list>
+
+1424866231 /usr/local/include/opencv2/objdetect/objdetect.hpp
+	"opencv2/core/core.hpp"
+	<map>
+	<deque>
+
+1424866231 /usr/local/include/opencv2/contrib/contrib.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/imgproc/imgproc.hpp"
+	"opencv2/features2d/features2d.hpp"
+	"opencv2/objdetect/objdetect.hpp"
+	"opencv2/contrib/retina.hpp"
+	"opencv2/contrib/openfabmap.hpp"
+
+1424866231 /usr/local/include/opencv2/contrib/retina.hpp
+	"opencv2/core/core.hpp"
+	<valarray>
+
+1424866231 /usr/local/include/opencv2/contrib/openfabmap.hpp
+	"opencv2/core/core.hpp"
+	"opencv2/features2d/features2d.hpp"
+	<vector>
+	<list>
+	<map>
+	<set>
+	<valarray>
+
+1441308878 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.hpp
+	<iostream>
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	"../common/utils.hpp"
+	"Tracker.hpp"
+	"Detector.hpp"
+	"Integrator_Learning.hpp"
+
+1431031028 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.hpp
+	<opencv2/video/tracking.hpp>
+	"../common/utils.hpp"
+
+1458257284 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
+	"TLD.hpp"
+
+1522778271 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
+	"Tracker.hpp"
+

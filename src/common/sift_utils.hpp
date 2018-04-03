@@ -2,12 +2,13 @@
 #define SIFT_UTILS_HPP_INCLUDED
 
 #include <opencv2/highgui/highgui.hpp>
-extern "C" {
-	#include <vl/generic.h>
-	#include <vl/sift.h>
-	#include <vl/stringop.h>
-	#include <vl/pgm.h>
-	#include <vl/getopt_long.h>
+extern "C"
+{
+	#include "vl/generic.h"
+	#include "vl/sift.h"
+	#include "vl/stringop.h"
+	#include "vl/pgm.h"
+	#include "vl/getopt_long.h"
 }
 #include "utils.hpp"
 

@@ -330,7 +330,7 @@ bool Track(Mat curr_frame, Mat next_frame, BoundingBox &bb, DRAW draw_flow, int 
 	if(!filtered_grid[0].empty()) filtered_grid[0].clear();
 	if(!filtered_grid[1].empty()) filtered_grid[1].clear();
 
-	if(isnan(bb[0])) {
+	if(std::isnan(bb[0])) {
 		return false;
 	}
 

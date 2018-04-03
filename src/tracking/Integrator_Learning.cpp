@@ -453,7 +453,7 @@ int mostConfident2(Mat frame, vector<BoundingBox> c_answers, double &max_d_conf,
                 index_return = max_d_index = index;
             }
 	}
-	if(!isnan(t_bb[0])) t_sim = modelSimilarity(t_descr);
+	if(!std::isnan(t_bb[0])) t_sim = modelSimilarity(t_descr);
 	else return index_return; //Sem resposta no tracker
 
 	if(max_d_conf > t_sim && overlap(t_bb, c_answers[max_d_index]) < 0.5) return index_return;

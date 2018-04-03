@@ -68,7 +68,8 @@ ModelSample::~ModelSample(){
 }
 
 //Similaridade entre amostras. No intervalo [0., 1.]
-double ModelSample::similarity(Mat pattern2){
+double ModelSample::similarity(Mat pattern2)
+{
 	if(nn_img.cols != DEFAULT_PATCH_SIZE || nn_img.rows != DEFAULT_PATCH_SIZE || nn_img.rows != pattern2.rows || nn_img.cols != pattern2.cols)
 		return 0.;
 
@@ -78,12 +79,14 @@ double ModelSample::similarity(Mat pattern2){
 			norm, gray1, gray2;
 	double *nn_row, *nn_cell, *patt_row, *patt_cell;
 
-	for(int j = 0; j < DEFAULT_PATCH_SIZE; j++){
+	for(int j = 0; j < DEFAULT_PATCH_SIZE; j++)
+	{
 		nn_row = nn_img.ptr<double>(j);
 		patt_row = pattern2.ptr<double>(j);
 		nn_cell = &nn_row[0];
 		patt_cell = &patt_row[0];
-		for(int i = 0; i < DEFAULT_PATCH_SIZE; i++, nn_cell++, patt_cell++){
+		for(int i = 0; i < DEFAULT_PATCH_SIZE; i++, nn_cell++, patt_cell++)
+		{
 			gray1 = nn_cell[0];
 			gray2 = patt_cell[0];
 			corr += gray1 * gray2;
@@ -103,11 +106,13 @@ double ModelSample::similarity(Mat pattern2){
 	return corr;
 }
 
-Candidate::Candidate(){
+Candidate::Candidate()
+{
 	for(int i = 0; i < NUM_FERNS; i++) code[i] = 0;
 }
 
-Candidate::~Candidate(){
+Candidate::~Candidate()
+{
 	image.release();
 	ens_img.release();
 	nn_img.release();
@@ -1100,13 +1105,16 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
     ensembleClassifier();
     end_t = clock();
 
-    if(_DEBUG_DETECTOR){
-        if(_DEBUG_PERF){
+    if(_DEBUG_DETECTOR)
+    {
+        if(_DEBUG_PERF)
+        {
 			printf("Ensemble Classifier: %d candidates\n", (int)candidates.size());
 			elapsed = (double)(end_t - start_t)*1000 / CLOCKS_PER_SEC;
 			printf("Elapsed: %.3lf ms\n", elapsed);
 		}
-        if(_DEBUG_WORKSPACE){
+        if(_DEBUG_WORKSPACE)
+        {
 			sprintf(name, "ensemble%d", frame_number);
 			saveAnswers(name, 2);
 			showRemainingScanningWindows(frame);

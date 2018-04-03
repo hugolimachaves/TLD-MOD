@@ -3,7 +3,7 @@
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/legacy/legacy.hpp>
+#include "opencv2/legacy/legacy.hpp"
 #include <iostream>
 
 #define MAX_DIST_CLUSTER	0.5		//Distância máxima da amostra até o centro de seu cluster

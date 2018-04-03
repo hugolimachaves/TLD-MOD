@@ -12,7 +12,8 @@ double L2norm(double hist[], int hist_size){
 }
 
 //Ordenação do sortElement
-int maxVal(const void * a, const void * b){
+int maxVal(const void * a, const void * b)
+{
     SortElement *a2 = (SortElement*) a;
     SortElement *b2 = (SortElement*) b;
 
@@ -21,28 +22,29 @@ int maxVal(const void * a, const void * b){
     return 0;
 }
 
-float widthBB(BoundingBox bb){
-	if(isnan(bb[2])||isnan(bb[0])) return 0.;
+float widthBB(BoundingBox bb)
+{
+	if(std::isnan(bb[2])||std::isnan(bb[0])) return 0.;
 	return (bb[2] - bb[0] + 1);
 }
 
-float heightBB(BoundingBox bb){
-	if(isnan(bb[3])||isnan(bb[1])) return 0.;
+float heightBB(BoundingBox bb)
+{
+	if(std::isnan(bb[3])||std::isnan(bb[1])) return 0.;
 	return (bb[3] - bb[1] + 1);
 }
 
-float areaBB(BoundingBox bb){
+float areaBB(BoundingBox bb)
+{
 	float w, h, area;
-
 	w = widthBB(bb);
     h = heightBB(bb);
-
     area = w * h;
-
     return area;
 }
 
-float intersectionArea(BoundingBox bb1, BoundingBox bb2){
+float intersectionArea(BoundingBox bb1, BoundingBox bb2)
+{
     BoundingBox intersection_bb;
 	float 	intersection_area;
 
@@ -53,15 +55,15 @@ float intersectionArea(BoundingBox bb1, BoundingBox bb2){
     intersection_bb[3] = MIN(bb1[3], bb2[3]);
     //area
     intersection_area = areaBB(intersection_bb);
-
     return intersection_area;
 }
 
-float overlap(BoundingBox bb1, BoundingBox bb2){
+float overlap(BoundingBox bb1, BoundingBox bb2)
+{
 	float 	intersection_area, _overlap;
 
-	if(isnan(bb1[0]) || isnan(bb1[1]) || isnan(bb1[2]) || isnan(bb1[3])) return 0.;
-	if(isnan(bb2[0]) || isnan(bb2[1]) || isnan(bb2[2]) || isnan(bb2[3])) return 0.;
+	if(std::isnan(bb1[0]) || std::isnan(bb1[1]) || std::isnan(bb1[2]) || std::isnan(bb1[3])) return 0.;
+	if(std::isnan(bb2[0]) || std::isnan(bb2[1]) || std::isnan(bb2[2]) || std::isnan(bb2[3])) return 0.;
 	if(bb1[0] > bb2[2]) return 0.0;
 	if(bb1[1] > bb2[3]) return 0.0;
 	if(bb1[2] < bb2[0]) return 0.0;
@@ -76,7 +78,8 @@ float overlap(BoundingBox bb1, BoundingBox bb2){
 }
 
 //Imagem integral II(x,y) = sum{x'<=x,y'<=y}I(x',y')^p (Viola-Jones)
-Mat integralImage(Mat image, int p){
+Mat integralImage(Mat image, int p)
+{
 	if(image.empty()) return Mat();
 
 	int width = image.size().width,
