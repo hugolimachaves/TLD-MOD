@@ -12,11 +12,11 @@
 	"vl/getopt_long.h"
 	"utils.hpp"
 
-1424866231 /usr/local/include/opencv2/highgui/highgui.hpp
+1411092226 /usr/local/include/opencv2/highgui/highgui.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/highgui/highgui_c.h"
 
-1424866231 /usr/local/include/opencv2/core/core.hpp
+1411092226 /usr/local/include/opencv2/core/core.hpp
 	"opencv2/core/types_c.h"
 	"opencv2/core/version.hpp"
 	<limits.h>
@@ -32,7 +32,7 @@
 	"opencv2/core/operations.hpp"
 	"opencv2/core/mat.hpp"
 
-1424866231 /usr/local/include/opencv2/core/types_c.h
+1411092226 /usr/local/include/opencv2/core/types_c.h
 	<assert.h>
 	<stdlib.h>
 	<string.h>
@@ -47,23 +47,23 @@
 	"tegra_round.hpp"
 	"emmintrin.h"
 
-1424866231 /usr/local/include/opencv2/core/version.hpp
+1411092226 /usr/local/include/opencv2/core/version.hpp
 
-1424866231 /usr/local/include/opencv2/core/operations.hpp
+1411092226 /usr/local/include/opencv2/core/operations.hpp
 	<string.h>
 	<limits.h>
 	<ext/atomicity.h>
 	<bits/atomicity.h>
 	<limits>
 
-1424866231 /usr/local/include/opencv2/core/mat.hpp
+1411092226 /usr/local/include/opencv2/core/mat.hpp
 	<limits.h>
 	<string.h>
 
-1424866231 /usr/local/include/opencv2/highgui/highgui_c.h
+1411092226 /usr/local/include/opencv2/highgui/highgui_c.h
 	"opencv2/core/core_c.h"
 
-1424866231 /usr/local/include/opencv2/core/core_c.h
+1411092226 /usr/local/include/opencv2/core/core_c.h
 	"opencv2/core/types_c.h"
 
 1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/generic.h
@@ -105,14 +105,14 @@
 	"opencv2/legacy/legacy.hpp"
 	<iostream>
 
-1424866231 /usr/local/include/opencv2/imgproc/imgproc.hpp
+1411092226 /usr/local/include/opencv2/imgproc/imgproc.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/types_c.h"
 
-1424866231 /usr/local/include/opencv2/imgproc/types_c.h
+1411092226 /usr/local/include/opencv2/imgproc/types_c.h
 	"opencv2/core/core_c.h"
 
-1424866231 /usr/local/include/opencv2/legacy/legacy.hpp
+1411092226 /usr/local/include/opencv2/legacy/legacy.hpp
 	"opencv2/imgproc/imgproc.hpp"
 	"opencv2/imgproc/imgproc_c.h"
 	"opencv2/features2d/features2d.hpp"
@@ -121,33 +121,32 @@
 	<iosfwd>
 	<limits>
 
-1424866231 /usr/local/include/opencv2/imgproc/imgproc_c.h
+1411092226 /usr/local/include/opencv2/imgproc/imgproc_c.h
 	"opencv2/core/core_c.h"
 	"opencv2/imgproc/types_c.h"
 
-1424866231 /usr/local/include/opencv2/features2d/features2d.hpp
+1411092226 /usr/local/include/opencv2/features2d/features2d.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/flann/miniflann.hpp"
 	<limits>
 
-1424866231 /usr/local/include/opencv2/flann/miniflann.hpp
+1411092226 /usr/local/include/opencv2/flann/miniflann.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/flann/defines.h"
 
-1424866231 /usr/local/include/opencv2/flann/defines.h
+1411092226 /usr/local/include/opencv2/flann/defines.h
 	"config.h"
 
-1424866231 /usr/local/include/opencv2/flann/config.h
+1411092226 /usr/local/include/opencv2/flann/config.h
 
-1424866231 /usr/local/include/opencv2/calib3d/calib3d.hpp
+1411092226 /usr/local/include/opencv2/calib3d/calib3d.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/features2d/features2d.hpp"
-	"opencv2/core/affine.hpp"
 
 1424866231 /usr/local/include/opencv2/core/affine.hpp
 	<opencv2/core/core.hpp>
 
-1424866231 /usr/local/include/opencv2/ml/ml.hpp
+1411092226 /usr/local/include/opencv2/ml/ml.hpp
 	"opencv2/core/core.hpp"
 	<limits.h>
 	<map>
@@ -182,7 +181,7 @@
 	<opencv2/opencv.hpp>
 	"TLD.hpp"
 
-1424866231 /usr/local/include/opencv2/opencv.hpp
+1411092226 /usr/local/include/opencv2/opencv.hpp
 	"opencv2/core/core_c.h"
 	"opencv2/core/core.hpp"
 	"opencv2/flann/miniflann.hpp"
@@ -198,32 +197,32 @@
 	"opencv2/highgui/highgui.hpp"
 	"opencv2/contrib/contrib.hpp"
 
-1424866231 /usr/local/include/opencv2/photo/photo.hpp
+1411092226 /usr/local/include/opencv2/photo/photo.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/imgproc.hpp"
 	"opencv2/photo/photo_c.h"
 
-1424866231 /usr/local/include/opencv2/photo/photo_c.h
+1411092226 /usr/local/include/opencv2/photo/photo_c.h
 	"opencv2/core/core_c.h"
 
-1424866231 /usr/local/include/opencv2/video/video.hpp
+1411092226 /usr/local/include/opencv2/video/video.hpp
 	"opencv2/video/tracking.hpp"
 	"opencv2/video/background_segm.hpp"
 
-1424866231 /usr/local/include/opencv2/video/tracking.hpp
+1411092226 /usr/local/include/opencv2/video/tracking.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/imgproc.hpp"
 
-1424866231 /usr/local/include/opencv2/video/background_segm.hpp
+1411092226 /usr/local/include/opencv2/video/background_segm.hpp
 	"opencv2/core/core.hpp"
 	<list>
 
-1424866231 /usr/local/include/opencv2/objdetect/objdetect.hpp
+1411092226 /usr/local/include/opencv2/objdetect/objdetect.hpp
 	"opencv2/core/core.hpp"
 	<map>
 	<deque>
 
-1424866231 /usr/local/include/opencv2/contrib/contrib.hpp
+1411092226 /usr/local/include/opencv2/contrib/contrib.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/imgproc/imgproc.hpp"
 	"opencv2/features2d/features2d.hpp"
@@ -231,11 +230,11 @@
 	"opencv2/contrib/retina.hpp"
 	"opencv2/contrib/openfabmap.hpp"
 
-1424866231 /usr/local/include/opencv2/contrib/retina.hpp
+1411092226 /usr/local/include/opencv2/contrib/retina.hpp
 	"opencv2/core/core.hpp"
 	<valarray>
 
-1424866231 /usr/local/include/opencv2/contrib/openfabmap.hpp
+1411092226 /usr/local/include/opencv2/contrib/openfabmap.hpp
 	"opencv2/core/core.hpp"
 	"opencv2/features2d/features2d.hpp"
 	<vector>
@@ -260,6 +259,6 @@
 1458257284 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
 	"TLD.hpp"
 
-1522778271 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
+1522787943 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
 	"Tracker.hpp"
 

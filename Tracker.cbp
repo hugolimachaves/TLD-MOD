@@ -52,8 +52,8 @@
 			<Add library="opencv_highgui" />
 			<Add library="opencv_video" />
 			<Add library="opencv_imgproc" />
-			<Add library="/home/helena/vlfeat/bin/glnxa64/libvl.so" />
-			<Add library="/usr/lib/libopencv_legacy.so" />
+			<Add library="/usr/local/lib/libopencv_legacy.so" />
+			<Add library="/home/hugo/Documents/Mestrado/codigoRastreador/vlfeat/vlfeat-0.9.21/bin/glnxa64/libvl.so" />
 			<Add directory="libv" />
 			<Add directory="/usr/lib/" />
 			<Add directory=" /usr/share/lib" />

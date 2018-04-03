@@ -1,0 +1,26 @@
+Package: libopencv-dev
+Source: opencv
+Version: 2.4.9.1+dfsg-1.5ubuntu1
+Architecture: amd64
+Maintainer: Kubuntu Developers <kubuntu-devel@lists.ubuntu.com>
+Installed-Size: 657
+Depends: libc6 (>= 2.14), libgcc1 (>= 1:3.0), libopencv-calib3d2.4v5, libopencv-core2.4v5, libopencv-highgui2.4v5, libopencv-imgproc2.4v5, libopencv-ml2.4v5, libopencv-objdetect2.4v5, libstdc++6 (>= 5.2), libopencv-core-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-ml-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-imgproc-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-video-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-objdetect-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-highgui-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-calib3d-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-flann-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-features2d-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-legacy-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-contrib-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-ts-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-photo-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-videostab-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-stitching-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-gpu-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-superres-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv-ocl-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv2.4-java (= 2.4.9.1+dfsg-1.5ubuntu1), libopencv2.4-jni (= 2.4.9.1+dfsg-1.5ubuntu1), libcv-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libhighgui-dev (= 2.4.9.1+dfsg-1.5ubuntu1), libcvaux-dev (= 2.4.9.1+dfsg-1.5ubuntu1), pkg-config
+Recommends: opencv-data
+Breaks: libopencv-core-dev (<= 2.3.1-8)
+Section: libdevel
+Priority: optional
+Homepage: http://opencv.org/
+Description: development files for opencv
+ This is a metapackage providing development package necessary for
+ development of OpenCV (Open Computer Vision).
+ .
+ The Open Computer Vision Library is a collection of algorithms and sample
+ code for various computer vision problems. The library is compatible with
+ IPL (Intel's Image Processing Library) and, if available, can use IPP
+ (Intel's Integrated Performance Primitives) for better performance.
+ .
+ OpenCV provides low level portable data types and operators, and a set
+ of high level functionalities for video acquisition, image processing and
+ analysis, structural analysis, motion analysis and object tracking, object
+ recognition, camera calibration and 3D reconstruction.
+Original-Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
