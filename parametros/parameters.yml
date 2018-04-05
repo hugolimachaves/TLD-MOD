@@ -3,8 +3,8 @@ video_type: 2
 filter: 6
 window_size: 15
 bb_path:  bb.txt
-video_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david.list
-init_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david_init.list
+video_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/dataset/01_david/01_david.list
+init_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david_init.txt
 gt_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david_gt.txt
 detect: 1
 track: 1
