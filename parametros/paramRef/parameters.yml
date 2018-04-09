@@ -3,9 +3,9 @@ video_type: 2
 filter: 6
 window_size: 15
 bb_path:  bb.txt
-video_path: /home/hugo/Documents/Mestrado/alov300
-init_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david_init.txt
-gt_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/01_david_gt.txt
+video_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/paramRef/dataset/01_david.list
+init_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/paramRef/01_david_init.txt
+gt_path: /home/hugo/Documents/Mestrado/codigoRastreador/parametros/paramRef/01_david_gt.txt
 detect: 1
 track: 1
 detect_failure: 1
