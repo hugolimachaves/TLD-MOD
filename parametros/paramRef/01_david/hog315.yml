@@ -1,0 +1,18 @@
+%YAML:1.0
+video_type: 2
+filter: 6
+window_size: 15
+bb_path:  dataset/01_david/hog315.txt
+video_path: dataset/list/01_david.list
+init_path: dataset/01_david/init.txt
+gt_path: dataset/01_david/_gt.txt
+detect: 1
+track: 1
+detect_failure: 1
+show: 0
+repeat_video: 0
+print_status: 1
+validation_method: 2
+selection_method: 1
+hog_interp:1
+hog_power_norm:0
