@@ -22,6 +22,7 @@ def _gerarLista(caminho,extensao):
     for i in lista:
         if i.endswith(extensao):
             listaFinal.append(caminho + i)
+    listaFinal.sort()
     _escrever(caminho,listaFinal)
 
 def _main(args):
