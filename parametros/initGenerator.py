@@ -7,6 +7,7 @@ def _getArgs():
     parser.add_argument("gt", help="nome do arquivo que tem o bounding box inicial")
     return parser.parse_args()
 
+#arquivo para gerar a BB a partir de uma lista
 def gerarBBInicial(lista):
     linha = lista[0].split()
     linhaInt = []
@@ -46,6 +47,7 @@ def _ler(arquivo):
     file.close()
     return k
 
+#passa o caminho e o nome do arquivo GT (ground truth)
 def _main(caminho,gt):
     _escrever(caminho,gt,gerarBBInicial(_ler(caminho+'/'+gt)))
 
