@@ -1,10 +1,18 @@
 import os
 import argparse as arg
 
+
+'''
+Gera arquivos contendo apenas BB *INICIAIS* baseados nas anotaçoes fornecidas 
+pelo banco de dados alov300.
+'''
+
+encode = "utf-8"
 def _getArgs():
-    parser = arg.ArgumentParser()
+    parser = arg.ArgumentParser(description = "fornece os bounding boxes com as anotacoes e escreve um arquivo .txt com o BB inicial")
     parser.add_argument("caminho", help = "caminho do arquivo de onde sera tirado a informacao inicial do bounding box")
     parser.add_argument("gt", help="nome do arquivo que tem o bounding box inicial")
+    parser.add_argument("--escrita","-e", help="Nome da subpasta de escrita", default = 'inicial' )
     return parser.parse_args()
 
 #arquivo para gerar a BB a partir de uma lista
@@ -35,9 +43,8 @@ def gerarBBInicial(lista):
     return bBIncicial
     
 
-def _escrever(caminho,gt,lista):
-    file = open(caminho+gt+'.txt',"w")
-    #file.writelines(str(len(lista))+'\n')
+def _escrever(caminho,gt,lista,escrita):
+    file = open(os.path.join(os.path.join(caminho,escrita),gt)+'.txt',"w")
     file.writelines(lista+'\n')
     file.close()
 
@@ -48,9 +55,9 @@ def _ler(arquivo):
     return k
 
 #passa o caminho e o nome do arquivo GT (ground truth)
-def _main(caminho,gt):
-    _escrever(caminho,gt,gerarBBInicial(_ler(caminho+'/'+gt)))
+def _main(caminho,gt,escrita):
+    _escrever(caminho,gt,gerarBBInicial(_ler(caminho+'/'+gt)),escrita)
 
 if __name__ == '__main__' :
     args = _getArgs()
-    _main(args.caminho,args.gt)
+    _main(args.caminho,args.gt,args.escrita)
