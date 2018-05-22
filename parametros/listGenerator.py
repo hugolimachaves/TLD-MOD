@@ -1,6 +1,11 @@
 import os 
 import argparse as arg
 
+'''
+Este arquivo gere individualmente uma lista de frames, para uma extensaso especifica, por padrao .jpg
+considerando um diretorio infomrado.
+Para gerar para diversas listas, deve-se chamar um programa auxiliar, como listTodos.py
+'''
 
 def _getArgs():
     parser = arg.ArgumentParser()
