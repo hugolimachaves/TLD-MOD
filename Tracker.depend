@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1522778711 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.cpp
+1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.cpp
 	"sift_utils.hpp"
 	<math.h>
 
-1522677326 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.hpp
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/sift_utils.hpp
 	<opencv2/highgui/highgui.hpp>
 	"vl/generic.h"
 	"vl/sift.h"
@@ -66,7 +66,7 @@
 1411092226 /usr/local/include/opencv2/core/core_c.h
 	"opencv2/core/types_c.h"
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/generic.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/generic.h
 	"host.h"
 	"random.h"
 	<stdlib.h>
@@ -74,32 +74,32 @@
 	<time.h>
 	<assert.h>
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/host.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/host.h
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/random.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/random.h
 	"host.h"
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/sift.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/sift.h
 	<stdio.h>
 	"generic.h"
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/stringop.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/stringop.h
 	"generic.h"
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/pgm.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/pgm.h
 	"generic.h"
 	"mathop.h"
 	<stdio.h>
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/mathop.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/mathop.h
 	"generic.h"
 	<math.h>
 	<float.h>
 
-1515705275 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/getopt_long.h
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/vl/getopt_long.h
 	"generic.h"
 
-1522677361 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.hpp
+1522954404 /home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.hpp
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/imgproc/imgproc.hpp>
 	"opencv2/legacy/legacy.hpp"
@@ -153,11 +153,11 @@
 	<string>
 	<iostream>
 
-1522778177 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.cpp
+1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/common/utils.cpp
 	"utils.hpp"
 	<math.h>
 
-1522778711 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
+1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
 	"Detector.hpp"
 
 1441311654 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.hpp
@@ -166,7 +166,7 @@
 	<opencv2/legacy/legacy.hpp>
 	"../common/utils.hpp"
 
-1522778227 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
+1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
 	"Integrator_Learning.hpp"
 
 1441312356 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.hpp
@@ -259,6 +259,6 @@
 1458257284 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
 	"TLD.hpp"
 
-1522787943 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
+1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
 	"Tracker.hpp"
 
