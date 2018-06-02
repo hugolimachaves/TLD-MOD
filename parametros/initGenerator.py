@@ -33,10 +33,10 @@ def gerarBBInicial(lista):
     print(width)
     print(height)
     pontos = [] 
-    pontos.append(str(min(width)))
-    pontos.append(str(min(height)))
-    pontos.append(str(max(width)))
-    pontos.append(str(max(height)))
+    pontos.append(str(min(width)-1))
+    pontos.append(str(min(height)-1))
+    pontos.append(str(max(width)-1))
+    pontos.append(str(max(height)-1))
     bBIncicial = []
     virgula = ","
     bBIncicial = virgula.join(pontos)
