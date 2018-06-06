@@ -2,10 +2,8 @@ import os
 import argparse as arg
 
 
-'''
-Gera arquivos contendo apenas BB *INICIAIS* baseados nas anotaçoes fornecidas 
-pelo banco de dados alov300.
-'''
+'''Gera arquivos contendo apenas BB *INICIAIS* baseados nas anotacoes fornecidas 
+pelo banco de dados alov300.'''
 
 encode = "utf-8"
 def _getArgs():

@@ -4,7 +4,7 @@ import argparse as arg
 encode = "utf-8"
 
 """
-Chama automaticamente o arquivo initGenerator.py para gerar diversas anotações iniciais.
+Chama automaticamente o arquivo initGenerator.py para gerar diversas anotacoes iniciais.
 Atente-se ao padrao de arquivos.
 Padrao semelhante ao presente em listTodos.py, porém com um nivel a menos.
 """

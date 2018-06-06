@@ -513,7 +513,7 @@ void TLD(char *parameters_path){
 	//pause_cap = true;
 	//enable_bb = true;
 	while(1){
-		if(frame_count == 2021) pause_cap = true;
+		//if(frame_count == 2021) pause_cap = true; //wtf????
         if(!pause_cap){
             nextFrame(&next_frame, repeat_video, true);
             if(next_frame.empty()){
