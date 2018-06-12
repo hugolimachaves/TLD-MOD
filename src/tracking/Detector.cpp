@@ -1,4 +1,5 @@
 #include "Detector.hpp"
+#define DEBUG_1 1
 
 //Geração das scanning windows
 #define SCALE_STEP          1.2
@@ -1038,6 +1039,8 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf){
 	int isin_p, isin_n; //ignorados
 	Mat view;
 
+
+
 	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		fastSimilarity((*candidate).nn_img, (*candidate).r_sim, (*candidate).c_sim, isin_p, isin_n);
 	}
@@ -1051,6 +1054,34 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf){
 		conf.push_back((*candidate).c_sim); //Adiciona cópia
 		positions.push_back(scanning_windows[(*candidate).scanning_windows_index]); //Adiciona cópia
 	}
+
+	if(DEBUG_1)
+	{
+		std::cout<<"index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<" index 1: "
+		<<scanning_windows[(*candidate).scanning_windows_index][1]<<" index 2: "<<
+		scanning_windows[(*candidate).scanning_windows_index][2]<<" index 3: "<<
+		scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
+
+
+		vector<BoundingBox>::iterator iterador;
+
+		for (iterador = positions.begin(); iterador != positions.end(); iterador++ )
+		{
+            //std::cout<<"positions[0][0]:"<<(*iterador)[0]<<std::endl;
+
+            //vector<BoundingBox>::iterator iterador;
+
+
+            for ( auto it = iterador->begin() ; it != iterador->end(); it++ )
+            {
+
+                std::cout<<"positions[0][0]:"<<*it<<std::endl;
+            }
+		}
+
+	}
+
+
 }
 
 //Retorna bounding boxes que contém o objeto em 'positions' e suas respectivas similaridades conservativas em 'd_conf'
