@@ -1,5 +1,6 @@
 #include "Detector.hpp"
-#define DEBUG_1 1
+#define DEBUG_1 0
+#define DEBUG_2 1
 
 //Geração das scanning windows
 #define SCALE_STEP          1.2
@@ -69,8 +70,10 @@ ModelSample::~ModelSample(){
 }
 
 //Similaridade entre amostras. No intervalo [0., 1.]
+//voce passa uma imagem para comparção aqui
 double ModelSample::similarity(Mat pattern2)
 {
+	//assegurar que esta no tamanho padrao e que pattern2 tenha a mesma dimensao que nn_img
 	if(nn_img.cols != DEFAULT_PATCH_SIZE || nn_img.rows != DEFAULT_PATCH_SIZE || nn_img.rows != pattern2.rows || nn_img.cols != pattern2.cols)
 		return 0.;
 
@@ -86,6 +89,7 @@ double ModelSample::similarity(Mat pattern2)
 		patt_row = pattern2.ptr<double>(j);
 		nn_cell = &nn_row[0];
 		patt_cell = &patt_row[0];
+		//vai fazer bitwise operation
 		for(int i = 0; i < DEFAULT_PATCH_SIZE; i++, nn_cell++, patt_cell++)
 		{
 			gray1 = nn_cell[0];
@@ -95,15 +99,16 @@ double ModelSample::similarity(Mat pattern2)
 			norm2 += gray2 * gray2;
 		}
 	}
-
+	//norma a ser dividida
 	norm = sqrt(norm1*norm2);
+
 
 	if(norm1 < EPSILON && norm2 < EPSILON) corr = 1.; //Duas imagens praticamente vazias
 	else if(norm > EPSILON) corr/= norm;
 	else return 0.;
 
 	corr = (corr + 1.)/2.;
-
+	//retorna algo semelhante a uma correlação
 	return corr;
 }
 
@@ -1033,16 +1038,41 @@ void ensembleClassifier(){
 	last_ens_candidates.assign(candidates.begin(), candidates.end()); //Guarda saída do comitê. Cópia independente
 }
 
-//Step 3: NN classifier
+//Step 3: NN classifier - Possivelmente passa o endereco onde seram ecsritos as posicoes onde foram encontradas os objetos e suas confiabilidade
 void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf){
+
 	vector<Candidate>::iterator candidate;
 	int isin_p, isin_n; //ignorados
 	Mat view;
 
 
 
+	if(DEBUG_2)
+	{
+		vector<ModelSample>::iterator goodIterator;
+		for ( goodIterator = object_model[1].begin(); goodIterator < object_model[1].end(); goodIterator++ )
+		{
+			namedWindow( "goodSamples", WINDOW_AUTOSIZE ); // Create a window for display.
+			resizeWindow("goodSamples", 200,200);
+			imshow("goodSamples",(*goodIterator).image);
+			waitKey(100);
+		}
+	}
+
+
 	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		fastSimilarity((*candidate).nn_img, (*candidate).r_sim, (*candidate).c_sim, isin_p, isin_n);
+
+		if(DEBUG_1)
+		{
+			namedWindow( "Debug", WINDOW_AUTOSIZE ); // Create a window for display.
+			resizeWindow("Debug", 200,200);
+			imshow("Debug",(*candidate).nn_img );
+			waitKey(100);
+		}
+
+
+
 	}
 
 	candidates.erase(
@@ -1061,27 +1091,18 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf){
 		<<scanning_windows[(*candidate).scanning_windows_index][1]<<" index 2: "<<
 		scanning_windows[(*candidate).scanning_windows_index][2]<<" index 3: "<<
 		scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
-
-
 		vector<BoundingBox>::iterator iterador;
 
 		for (iterador = positions.begin(); iterador != positions.end(); iterador++ )
 		{
             //std::cout<<"positions[0][0]:"<<(*iterador)[0]<<std::endl;
-
             //vector<BoundingBox>::iterator iterador;
-
-
             for ( auto it = iterador->begin() ; it != iterador->end(); it++ )
             {
-
-                std::cout<<"positions[0][0]:"<<*it<<std::endl;
+                std::cout<<"positions:"<<*it<<std::endl;
             }
 		}
-
 	}
-
-
 }
 
 //Retorna bounding boxes que contém o objeto em 'positions' e suas respectivas similaridades conservativas em 'd_conf'
