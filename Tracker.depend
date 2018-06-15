@@ -157,7 +157,7 @@
 	"utils.hpp"
 	<math.h>
 
-1528832785 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
+1529001551 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
 	"Detector.hpp"
 
 1528818431 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.hpp
@@ -166,7 +166,7 @@
 	<opencv2/legacy/legacy.hpp>
 	"../common/utils.hpp"
 
-1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
+1529004989 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
 	"Integrator_Learning.hpp"
 
 1441312356 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.hpp
@@ -256,7 +256,7 @@
 	<opencv2/video/tracking.hpp>
 	"../common/utils.hpp"
 
-1528818431 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
+1529004920 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
 	"TLD.hpp"
 
 1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp

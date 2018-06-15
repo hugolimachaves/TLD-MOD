@@ -76,9 +76,11 @@ bool captureOpen(string path){
 	return true;
 }
 
-void captureClose(){
+void captureClose()
+{
     if(image_list){
-        for(int i = 0; i < image_list_size; i++) free(image_list[i]);
+        for(int i = 0; i < image_list_size; i++) 
+			free(image_list[i]);
         free(image_list);
     }
     cap.release();
@@ -86,57 +88,71 @@ void captureClose(){
 }
 
 //Copia valor da bounding box inicial para a atual
-void resetBB(){
-    if(!isnan(init_bb[0])){
+void resetBB()
+{
+    if(!isnan(init_bb[0]))
+	{
         bb[0] = init_bb[0];
         bb[1] = init_bb[1];
         bb[2] = init_bb[2];
         bb[3] = init_bb[3];
         has_bb = draw_bb = true;
     }
-    else has_bb = draw_bb = false;
+    else 
+		has_bb = draw_bb = false;
 }
 
 //Pega próximo frame em tons de cinza ou colorido (grayscale) e se repeat for igual a true a função reinicia quando a captura chega ao fim ou a tecla de reset é pressionada.
-void nextFrame(Mat *frame, bool repeat, bool grayscale){
+void nextFrame(Mat *frame, bool repeat, bool grayscale)
+{
 	reset = false;
 	frame->release();
 
-	if(video_type == IMAGE_LIST){
+	if(video_type == IMAGE_LIST)
+	{
         //Reinicia se chegou ao fim ou se a tecla de reset foi pressionada
-		if((image_list_pointer >= image_list_size || reset_key) && repeat){
+		if((image_list_pointer >= image_list_size || reset_key) && repeat)
+		{
 			frame_count = 0;
 			resetBB();
 			image_list_pointer = 0;
 			train = reset = true;
 		}
-		else if(image_list_pointer >= image_list_size) return;
+		else if(image_list_pointer >= image_list_size) 
+			return;
 		reset_key = false;
 
-		if(grayscale) (*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_GRAYSCALE);
-		else (*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_COLOR);
+		if(grayscale) 
+			(*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_GRAYSCALE);
+		else 
+			(*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_COLOR);
 		frame_count++;
 	}
-	else{
+	else
+	{
 		cap >> (*frame);
 		//Reinicia se chegou ao fim ou se a tecla foi pressionada. Para webcam, repeat é automaticamente false
-		if((reset_key || frame->empty()) && repeat){
+		if((reset_key || frame->empty()) && repeat)
+		{
 			frame_count = 0;
 			resetBB();
 			cap.set(CV_CAP_PROP_POS_FRAMES, 0);
 			train = reset = true;
 			cap >> (*frame);
 		}
-		else if(frame->empty()) return;
+		else if(frame->empty()) 
+			return;
 		reset_key = false;
 
-		if(grayscale) cvtColor(*frame, *frame, COLOR_BGR2GRAY);
+		if(grayscale) 
+			cvtColor(*frame, *frame, COLOR_BGR2GRAY);
 		frame_count++;
 	}
 }
 
 //Menu
-void help(){
+void help()
+{
     cout << "-------------------------------------------------------------" << endl;
     cout << "FILTER:" << endl;
     cout << "\tPress 'z' to remove current filters." << endl;
@@ -162,11 +178,15 @@ void help(){
 
 //Define bounding box: Pega primeiro ponto e desenha retângulo resultante até que o usuario solte o botão
 //Botão direito permite a redefinição da bb
-void mouseHandler(int event, int x, int y, int flags, void *param){
-    if(!enable_bb) return;
-    switch(event){
+void mouseHandler(int event, int x, int y, int flags, void *param)
+{
+    if(!enable_bb) 
+		return;
+    switch(event)
+	{
         case CV_EVENT_LBUTTONDOWN: //Pega primeiro ponto da bb
-            if(!has_bb){
+            if(!has_bb)
+			{
 				pause_cap = true;
                 bb[0] = bb[2] = (float)x;
                 bb[1] = bb[3] = (float)y;
@@ -174,29 +194,36 @@ void mouseHandler(int event, int x, int y, int flags, void *param){
             }
         break;
         case CV_EVENT_MOUSEMOVE:
-            if(!has_bb&&draw_bb){ //draw_bb eh verdadeiro quando pelo menos um ponto foi definido
+            if(!has_bb&&draw_bb)
+			{ //draw_bb eh verdadeiro quando pelo menos um ponto foi definido
                 bb[2] = (float)x;
                 bb[3] = (float)y;
             }
         break;
         case CV_EVENT_LBUTTONUP: //Pega segundo ponto
-            if(!has_bb&&draw_bb){
-                if(x == bb[0] || y == bb[1]) { //Clique instantaneo (sem arrastar) não é considerado bb
+            if(!has_bb&&draw_bb)
+			{
+                if(x == bb[0] || y == bb[1]) 
+				{ //Clique instantaneo (sem arrastar) não é considerado bb
                     has_bb = false;
                     draw_bb = false;
                     return;
                 }
                 //ordena coordenadas
-                if(x < bb[0]){
+                if(x < bb[0])
+				{
                     bb[2] = bb[0];
                     bb[0] = (float)x;
                 }
-                else bb[2] = (float)x;
-                if(y < bb[1]){
+                else 
+					bb[2] = (float)x;
+                if(y < bb[1])
+				{
                     bb[3] = bb[1];
                     bb[1] = (float)y;
                 }
-                else bb[3] = (float)y;
+                else 
+					bb[3] = (float)y;
                 has_bb = train = init_il = true;
             }
         break;
@@ -208,7 +235,8 @@ void mouseHandler(int event, int x, int y, int flags, void *param){
     }
 }
 
-inline void addFilter(int new_filter){
+inline void addFilter(int new_filter)
+{
 	filter = filter | new_filter;
 	cout << "Current filter(s): ";
 	if(filter & SSD_FILTER) cout << "SSD ";
@@ -218,13 +246,16 @@ inline void addFilter(int new_filter){
 }
 
 //Controles do player no teclado. Retorna true se o usuário finalizou o programa (q ou ESC)
-bool keyboardCallBack(){
+bool keyboardCallBack()
+{
 	char key = waitKey(delay);
     bool kill = false;
 
-    if(!show) return false;
+    if(!show) 
+		return false;
 
-    switch(key){
+    switch(key)
+	{
         //Filtros
         case 'Z':
         case 'z':
@@ -324,25 +355,35 @@ bool keyboardCallBack(){
 }
 
 //Imprime componentes ativos e filtros
-void printComponents(int valid, int conf){
+void printComponents(int valid, int conf)
+{
 	cout << "Components:" << endl;
 
     cout << "\tTracker: ";
-    if(enable_track) cout << "Enabled" << endl;
-    else cout << "Disabled" << endl;
+    if(enable_track) 
+		cout << "Enabled" << endl;
+    else 
+		cout << "Disabled" << endl;
 
     cout << "\tTracker failure detection: ";
-    if(detect_failure) cout << "Enabled" << endl;
-    else cout << "Disabled" << endl;
+    if(detect_failure) 
+		cout << "Enabled" << endl;
+    else 
+		cout << "Disabled" << endl;
 
     cout << "\tDetector: ";
-    if(enable_detect) cout << "Enabled" << endl;
-    else cout << "Disabled" << endl;
+    if(enable_detect) 
+		cout << "Enabled" << endl;
+    else 
+		cout << "Disabled" << endl;
 
 	cout << endl << "Current filter(s): ";
-    if(filter & SSD_FILTER) cout << "SSD ";
-    if(filter & NCC_FILTER) cout << "NCC ";
-    if(filter & FB_FILTER) cout << "FB ";
+    if(filter & SSD_FILTER) 
+		cout << "SSD ";
+    if(filter & NCC_FILTER) 
+		cout << "NCC ";
+    if(filter & FB_FILTER) 
+		cout << "FB ";
     cout << endl << endl;
 
     cout << "Valid: ";
@@ -364,10 +405,13 @@ void printComponents(int valid, int conf){
 }
 
 //Pega primeira bounding box no arquivo de inicialização ou inicia vídeo no pause para que o usuário selecione o objeto
-void initBB(string init_path, int width, int height){
-	if(init_path.c_str()) {
+void initBB(string init_path, int width, int height)
+{
+	if(init_path.c_str()) 
+	{
 		FILE *init = fopen(init_path.c_str(), "r");
-		if(init){
+		if(init)
+		{
 			fscanf(init, "%f,%f,%f,%f", &bb[0], &bb[1], &bb[2], &bb[3]);
 			fclose(init);
 
@@ -381,9 +425,11 @@ void initBB(string init_path, int width, int height){
 				has_bb = draw_bb = true;
 				return;
 			}
-			else cout << "Invalid bounding box." << endl;
+			else 
+				cout << "Invalid bounding box." << endl;
 		}
-		else cout << "Could not open init file" << endl;
+		else 
+			cout << "Could not open init file" << endl;
 	}
 
 	//Se por algum motivo não conseguiu pegar a bb inicial, pausa a visualização.
@@ -392,18 +438,26 @@ void initBB(string init_path, int width, int height){
 }
 
 //Salva saída em arquivo
-inline void fprintfBB(FILE *bb_file){
-	if(!isnan(init_bb[0])){
-		if(has_bb) fprintf(bb_file, "%f,%f,%f,%f\n", bb[0], bb[1], bb[2], bb[3]);
-		else fprintf(bb_file, "%f,%f,%f,%f\n", NAN, NAN, NAN, NAN);
+inline void fprintfBB(FILE *bb_file)
+{
+	if(!isnan(init_bb[0]))
+	{
+		if(has_bb) 
+			fprintf(bb_file, "%f,%f,%f,%f\n", bb[0], bb[1], bb[2], bb[3]);
+		else 
+			fprintf(bb_file, "%f,%f,%f,%f\n", NAN, NAN, NAN, NAN);
 	}
 }
 
 //Mostra imagem na tela e/ou grava
-inline void show_save(Mat frame){
-	if(draw_bb && !isnan(bb[0])) rectangle(frame, Point2d(bb[0], bb[1]), Point2d(bb[2], bb[3]), Scalar(255.0, 255.0, 255.0), 2.);
-	if(show) imshow(WINDOW, frame);
-	if(save){
+inline void show_save(Mat frame)
+	{
+	if(draw_bb && !isnan(bb[0])) 
+		rectangle(frame, Point2d(bb[0], bb[1]), Point2d(bb[2], bb[3]), Scalar(255.0, 255.0, 255.0), 2.);
+	if(show) 
+		imshow(WINDOW, frame);
+	if(save)
+	{
 		imwrite(name, frame);
 		save = false;
 		cout << name << " saved." << endl;
@@ -415,7 +469,8 @@ bool readParameters(char *parameters_path, int &window_size, int &valid, int &co
     FileStorage parameters;
 
     parameters.open(parameters_path, FileStorage::READ);
-	if(!parameters.isOpened()) return false;
+	if(!parameters.isOpened()) 
+		return false;
 
 	video_type = (VIDEO_TYPE)((int)parameters["video_type"]);
 	parameters["filter"] >> filter;
@@ -436,7 +491,8 @@ bool readParameters(char *parameters_path, int &window_size, int &valid, int &co
 	return true;
 }
 
-void TLD(char *parameters_path){
+void TLD(char *parameters_path)
+{
 	Mat         next_frame,		 	//Next frame
                 curr_frame, 		//Current frame
                 view_frame, 		//Frame para visualização com pause
@@ -452,24 +508,23 @@ void TLD(char *parameters_path){
                 final_bb,			//Visivel?
                 repeat_video,		//Repetir a sequência
 				print_status;		//Imprimir número de frame
-	int window_size,
-		valid,
-		conf;
-	string 	bb_path,
-			video_path,
-			init_path;
+	int window_size,valid,conf;
+	string 	bb_path,video_path,init_path;
 
 	//Inicializa parametros alteraveis pelo usuario
-	if(!readParameters(parameters_path, window_size, valid, conf, bb_path, video_path, init_path, repeat_video, print_status)) return;
+	if(!readParameters(parameters_path, window_size, valid, conf, bb_path, video_path, init_path, repeat_video, print_status)) 
+		return;
 
 	repeat_video = show && repeat_video && (video_type != WEBCAM); //Se não mostra, não repete. Webcam n tem repetição
 
 	//Inicia captura do video ou webcam, ou le arquivo da lista de imagens
-    if(!captureOpen(video_path)) return;
+    if(!captureOpen(video_path)) 
+		return;
 
 	//Pega frame inicial
     nextFrame(&curr_frame, repeat_video, true);
-    if(curr_frame.empty()){
+    if(curr_frame.empty())
+	{
 		cout << "Could not capture frame..." << endl;
 		return;
 	}
@@ -477,15 +532,18 @@ void TLD(char *parameters_path){
 	initBB(init_path, curr_frame.cols, curr_frame.rows);
 
 	//Se conseguiu fazer a leitura da bb inicial
-    if(!isnan(init_bb[0])){
+    if(!isnan(init_bb[0]))
+	{
 		//Abre arquivo para gravar trajetoria, (seq. de bounding boxes)
 		bb_file = fopen(bb_path.c_str(), "w");
-		if(!bb_file){
+		if(!bb_file)
+		{
 			cout << "Could not create bounding box file" << endl;
 			return;
 		}
 
-		if(enable_detect) Train(curr_frame, bb, show);
+		if(enable_detect) 
+			Train(curr_frame, bb, show);
 		//initSIFT(curr_frame, bb);
 		initJudge(curr_frame, bb, valid, conf, show);
 		train = false;
@@ -495,7 +553,8 @@ void TLD(char *parameters_path){
 	}
 
 	//Prepara janela e menu
-	if(show){
+	if(show)
+	{
 		CLEAR();
 		help();
 		namedWindow(WINDOW, CV_WINDOW_FREERATIO);
@@ -512,33 +571,41 @@ void TLD(char *parameters_path){
 
 	//pause_cap = true;
 	//enable_bb = true;
-	while(1){
+	while(1)
+	{
 		//if(frame_count == 2021) pause_cap = true; //wtf????
-        if(!pause_cap){
+        if(!pause_cap)
+		{
             nextFrame(&next_frame, repeat_video, true);
-            if(next_frame.empty()){
-                if(repeat_video) cout << "Could not restart video..." << endl;
+            if(next_frame.empty())
+			{
+                if(repeat_video) 
+					cout << "Could not restart video..." << endl;
 				break;
 			}
 			PRINT_STATUS;
 
             //Se resetou só tem o primeiro frame, precisa pegar o segundo
-            if(!reset){
+            if(!reset)
+			{
                 tBB[0] = bb[0];
                 tBB[1] = bb[1];
                 tBB[2] = bb[2];
                 tBB[3] = bb[3];
                 tracked = detected = final_bb = false;
 
-				if(has_bb){
-					if(enable_track && !isnan(tBB[0])){
+				if(has_bb)
+				{
+					if(enable_track && !isnan(tBB[0]))
+					{
 						start_t = clock();
 						tracked = Track(curr_frame, next_frame, tBB, show?draw_flow:DISABLED, filter, detect_failure, window_size);
 						end_t = clock();
 						elapsed = (double)(end_t - start_t)/CLOCKS_PER_SEC;
 						//printf("Tracker Elapsed: %.3lf s\n", elapsed);
 					}
-					if(enable_detect){
+					if(enable_detect)
+					{
 						start_t = clock();
 						detected = Detect(next_frame, d_positions, d_conf, frame_count);
 						end_t = clock();
@@ -553,7 +620,8 @@ void TLD(char *parameters_path){
 					//printf("IL Elapsed: %.3lf s\n", elapsed);
 				}
 
-                if(show && !object.empty()) imshow(OBJECT_WINDOW, object);
+                if(show && !object.empty()) 
+					imshow(OBJECT_WINDOW, object);
 
                 show_save(curr_frame);
                 bb[0] = new_bb[0];
@@ -562,22 +630,28 @@ void TLD(char *parameters_path){
                 bb[3] = new_bb[3];
                 fprintfBB(bb_file);
             }
-			else{
-				if(enable_detect) Train(curr_frame, bb, show);
+			else
+			{
+				if(enable_detect) 
+					Train(curr_frame, bb, show);
 				train = false;
 				show_save(next_frame);
 			}
 
             next_frame.copyTo(curr_frame);
         }
-        else{
-			if(reset_key) nextFrame(&curr_frame, repeat_video, true);
+        else
+		{
+			if(reset_key) 
+				nextFrame(&curr_frame, repeat_video, true);
             curr_frame.copyTo(view_frame);
             show_save(view_frame);
         }
 
-        if(keyboardCallBack()) break;
+        if(keyboardCallBack()) 
+			break;
     }
 	captureClose();
-	if(!isnan(init_bb[0])) fclose(bb_file);
+	if(!isnan(init_bb[0])) 
+		fclose(bb_file);
 }
