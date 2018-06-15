@@ -1195,6 +1195,27 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int n
 
 	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
 	{
+		if(DEBUG_4)
+		{
+			//amostras positivas
+
+			vector<ModelSample>::iterator itpos;
+			for ( itpos = object_model[1].begin(); itpos < object_model[1].end(); itpos++ )
+			{
+				namedWindow( "goodSamples", WINDOW_AUTOSIZE ); // Create a window for display.
+				resizeWindow("goodSamples", 200,200);
+				imshow("goodSamples",(*itpos).image);
+				waitKey(100);
+			}
+
+			//bounding box dos candidatos
+			std::cout<<"scanningWindows index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<std::endl;
+			std::cout<<"scanningWindows index 1: "<<scanning_windows[(*candidate).scanning_windows_index][1]<<std::endl;
+			std::cout<<"scanningWindows index 2: "<<scanning_windows[(*candidate).scanning_windows_index][2]<<std::endl;
+			std::cout<<"scanningWindows index 3: "<<scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
+			std::cout<<"frame: "<<numeroQuadro<<std::endl;
+		}
+
 		fastSimilarity((*candidate).nn_img, (*candidate).r_sim, (*candidate).c_sim, isin_p, isin_n);
 
 		if(DEBUG_1)
@@ -1208,11 +1229,7 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int n
 			Vamos pegar todos os candidatos dentro desse for, olhar as delimitacoes da sua BB e compararar com o object model,
 		*/
 
-		if(DEBUG_4)
-		{
-			std::cout<<"scanningWindows index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<std::endl;
-			std::cout<<"scanningWindows index 1: "<<scanning_windows[(*candidate).scanning_windows_index][1]<<std::endl;
-		}
+
 	}
 
 
