@@ -5,13 +5,15 @@
 
 using namespace std;
 
-int main(int argc, char* argv[]){
-	if(argc != 2) {
+int main(int argc, char* argv[])
+{
+	if(argc < 2) 
+	{
 		cout << "Usage: <parameters_path>" << endl;
 		return EXIT_FAILURE;
-	}
+	}	
 
-	TLD(argv[1]);
+	TLD(argv[1],argv[2]);
 
 	return EXIT_SUCCESS;
 }

@@ -1,8 +1,20 @@
 #include "Detector.hpp"
+#include <fstream>
+#include <iostream>
 #define DEBUG_1 0
 #define DEBUG_2 0
 #define DEBUG_3 0
-#define DEBUG_4 1
+#define DEBUG_4 0
+#define ESCRITA 1
+#ifndef ESCRITA
+	#define ESCRITA 0
+#endif
+static int nPos = 0;
+static int nNeg = 0;
+//static vector<String> texto;
+//static int linha = 0;
+
+
 
 //Geração das scanning windows
 #define SCALE_STEP          1.2
@@ -1176,8 +1188,11 @@ void ensembleClassifier(){
 }
 
 //Step 3: NN classifier - Possivelmente passa o endereco onde seram ecsritos as posicoes onde foram encontradas os objetos e suas confiabilidade
-void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int numeroQuadro)
+void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int numeroQuadro, std::ofstream &outfile, string strSaidaTemplates)
 {
+
+	static int nNegativeNPositive[2] = {0,0};
+
 	vector<Candidate>::iterator candidate;
 	int isin_p, isin_n; //ignorados
 	Mat view;
@@ -1207,7 +1222,6 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int n
 				imshow("goodSamples",(*itpos).image);
 				waitKey(100);
 			}
-
 			//bounding box dos candidatos
 			std::cout<<"scanningWindows index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<std::endl;
 			std::cout<<"scanningWindows index 1: "<<scanning_windows[(*candidate).scanning_windows_index][1]<<std::endl;
@@ -1215,9 +1229,37 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int n
 			std::cout<<"scanningWindows index 3: "<<scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
 			std::cout<<"frame: "<<numeroQuadro<<std::endl;
 		}
-
 		fastSimilarity((*candidate).nn_img, (*candidate).r_sim, (*candidate).c_sim, isin_p, isin_n);
-
+		if(ESCRITA)
+		{
+			//numero do frame // coordenadas //scannigWindowsIndex
+			outfile<<numeroQuadro<<" ";
+			for(int i = 0 ; i<4 ; i++)
+			{
+				outfile<<scanning_windows[(*candidate).scanning_windows_index][i]<<" ";
+			}
+			outfile<<(*candidate).scanning_windows_index<<std::endl;
+			vector<ModelSample>::iterator modelIterator;
+			for ( int j = 0 ; j<2;j++)
+			{
+				for ( modelIterator = object_model[j].begin(); modelIterator < object_model[j].end(); modelIterator++ )
+				{
+					//Se houver pelo menos um exemplar novo
+					if(object_model[j].size() > nNegativeNPositive[j])
+					{
+						//Caso entre mais exemplares positivos e negativos ao mesmo tempo
+						for( int k = nNegativeNPositive[j] ; k < object_model[j].size(); k++,nNegativeNPositive[j]++  )
+						{
+							vector<int> compression_params;
+							compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+							compression_params.push_back(0);
+							//Positiva ou Negativa (1 ou 0)  + frame atual + ordem do Modelo(k)
+							imwrite( strSaidaTemplates + "/" +std::to_string(j) + " " + std::to_string(numeroQuadro)+" "+ std::to_string(k) + ".png", object_model[j][k].image, compression_params);
+						}
+					}
+				}
+			}
+		}
 		if(DEBUG_1)
 		{
 			namedWindow( "Debug", WINDOW_AUTOSIZE ); // Create a window for display.
@@ -1267,8 +1309,9 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int n
 }
 
 //Retorna bounding boxes que contém o objeto em 'positions' e suas respectivas similaridades conservativas em 'd_conf'
-bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number)
+bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number, std::ofstream &outfile, string strSaidaTemplates)
 {
+
 	last_ens_candidates.clear();
 	clock_t start_detection = clock();
 	detector_positions.clear();
@@ -1343,7 +1386,7 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
     }
 
     start_t = clock();
-    nearestNeighbor(detector_positions, d_conf, frame_number); //saidas do detector, similaridade conservativa das amostras (?)
+    nearestNeighbor(detector_positions, d_conf, frame_number, outfile, strSaidaTemplates); //saidas do detector, similaridade conservativa das amostras (?)
     end_t = clock();
 
     if(_DEBUG_DETECTOR){
@@ -1367,6 +1410,9 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
 		printf("Detection: %.3lfs\n", elapsed);
 	}
 
+
+
+
     if(detector_positions.empty())
 		return false;
 
@@ -1388,3 +1434,4 @@ void DetClear(){
         positive[i] = negative[i] = 0;
     }
 }
+

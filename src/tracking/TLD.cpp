@@ -1,4 +1,9 @@
+#define ESCRITA 1
+
 #include "TLD.hpp"
+#include <fstream>
+
+
 
 #ifdef _WIN32
     #define CLEAR() system("cls");
@@ -79,7 +84,7 @@ bool captureOpen(string path){
 void captureClose()
 {
     if(image_list){
-        for(int i = 0; i < image_list_size; i++) 
+        for(int i = 0; i < image_list_size; i++)
 			free(image_list[i]);
         free(image_list);
     }
@@ -98,7 +103,7 @@ void resetBB()
         bb[3] = init_bb[3];
         has_bb = draw_bb = true;
     }
-    else 
+    else
 		has_bb = draw_bb = false;
 }
 
@@ -118,13 +123,13 @@ void nextFrame(Mat *frame, bool repeat, bool grayscale)
 			image_list_pointer = 0;
 			train = reset = true;
 		}
-		else if(image_list_pointer >= image_list_size) 
+		else if(image_list_pointer >= image_list_size)
 			return;
 		reset_key = false;
 
-		if(grayscale) 
+		if(grayscale)
 			(*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_GRAYSCALE);
-		else 
+		else
 			(*frame) = imread(image_list[image_list_pointer++], CV_LOAD_IMAGE_COLOR);
 		frame_count++;
 	}
@@ -140,11 +145,11 @@ void nextFrame(Mat *frame, bool repeat, bool grayscale)
 			train = reset = true;
 			cap >> (*frame);
 		}
-		else if(frame->empty()) 
+		else if(frame->empty())
 			return;
 		reset_key = false;
 
-		if(grayscale) 
+		if(grayscale)
 			cvtColor(*frame, *frame, COLOR_BGR2GRAY);
 		frame_count++;
 	}
@@ -180,7 +185,7 @@ void help()
 //Botão direito permite a redefinição da bb
 void mouseHandler(int event, int x, int y, int flags, void *param)
 {
-    if(!enable_bb) 
+    if(!enable_bb)
 		return;
     switch(event)
 	{
@@ -203,7 +208,7 @@ void mouseHandler(int event, int x, int y, int flags, void *param)
         case CV_EVENT_LBUTTONUP: //Pega segundo ponto
             if(!has_bb&&draw_bb)
 			{
-                if(x == bb[0] || y == bb[1]) 
+                if(x == bb[0] || y == bb[1])
 				{ //Clique instantaneo (sem arrastar) não é considerado bb
                     has_bb = false;
                     draw_bb = false;
@@ -215,14 +220,14 @@ void mouseHandler(int event, int x, int y, int flags, void *param)
                     bb[2] = bb[0];
                     bb[0] = (float)x;
                 }
-                else 
+                else
 					bb[2] = (float)x;
                 if(y < bb[1])
 				{
                     bb[3] = bb[1];
                     bb[1] = (float)y;
                 }
-                else 
+                else
 					bb[3] = (float)y;
                 has_bb = train = init_il = true;
             }
@@ -251,7 +256,7 @@ bool keyboardCallBack()
 	char key = waitKey(delay);
     bool kill = false;
 
-    if(!show) 
+    if(!show)
 		return false;
 
     switch(key)
@@ -360,29 +365,29 @@ void printComponents(int valid, int conf)
 	cout << "Components:" << endl;
 
     cout << "\tTracker: ";
-    if(enable_track) 
+    if(enable_track)
 		cout << "Enabled" << endl;
-    else 
+    else
 		cout << "Disabled" << endl;
 
     cout << "\tTracker failure detection: ";
-    if(detect_failure) 
+    if(detect_failure)
 		cout << "Enabled" << endl;
-    else 
+    else
 		cout << "Disabled" << endl;
 
     cout << "\tDetector: ";
-    if(enable_detect) 
+    if(enable_detect)
 		cout << "Enabled" << endl;
-    else 
+    else
 		cout << "Disabled" << endl;
 
 	cout << endl << "Current filter(s): ";
-    if(filter & SSD_FILTER) 
+    if(filter & SSD_FILTER)
 		cout << "SSD ";
-    if(filter & NCC_FILTER) 
+    if(filter & NCC_FILTER)
 		cout << "NCC ";
-    if(filter & FB_FILTER) 
+    if(filter & FB_FILTER)
 		cout << "FB ";
     cout << endl << endl;
 
@@ -407,7 +412,7 @@ void printComponents(int valid, int conf)
 //Pega primeira bounding box no arquivo de inicialização ou inicia vídeo no pause para que o usuário selecione o objeto
 void initBB(string init_path, int width, int height)
 {
-	if(init_path.c_str()) 
+	if(init_path.c_str())
 	{
 		FILE *init = fopen(init_path.c_str(), "r");
 		if(init)
@@ -425,10 +430,10 @@ void initBB(string init_path, int width, int height)
 				has_bb = draw_bb = true;
 				return;
 			}
-			else 
+			else
 				cout << "Invalid bounding box." << endl;
 		}
-		else 
+		else
 			cout << "Could not open init file" << endl;
 	}
 
@@ -442,9 +447,9 @@ inline void fprintfBB(FILE *bb_file)
 {
 	if(!isnan(init_bb[0]))
 	{
-		if(has_bb) 
+		if(has_bb)
 			fprintf(bb_file, "%f,%f,%f,%f\n", bb[0], bb[1], bb[2], bb[3]);
-		else 
+		else
 			fprintf(bb_file, "%f,%f,%f,%f\n", NAN, NAN, NAN, NAN);
 	}
 }
@@ -452,9 +457,9 @@ inline void fprintfBB(FILE *bb_file)
 //Mostra imagem na tela e/ou grava
 inline void show_save(Mat frame)
 	{
-	if(draw_bb && !isnan(bb[0])) 
+	if(draw_bb && !isnan(bb[0]))
 		rectangle(frame, Point2d(bb[0], bb[1]), Point2d(bb[2], bb[3]), Scalar(255.0, 255.0, 255.0), 2.);
-	if(show) 
+	if(show)
 		imshow(WINDOW, frame);
 	if(save)
 	{
@@ -469,7 +474,7 @@ bool readParameters(char *parameters_path, int &window_size, int &valid, int &co
     FileStorage parameters;
 
     parameters.open(parameters_path, FileStorage::READ);
-	if(!parameters.isOpened()) 
+	if(!parameters.isOpened())
 		return false;
 
 	video_type = (VIDEO_TYPE)((int)parameters["video_type"]);
@@ -491,7 +496,7 @@ bool readParameters(char *parameters_path, int &window_size, int &valid, int &co
 	return true;
 }
 
-void TLD(char *parameters_path)
+void TLD(char *parameters_path, char *saidaTemplates)
 {
 	Mat         next_frame,		 	//Next frame
                 curr_frame, 		//Current frame
@@ -512,13 +517,13 @@ void TLD(char *parameters_path)
 	string 	bb_path,video_path,init_path;
 
 	//Inicializa parametros alteraveis pelo usuario
-	if(!readParameters(parameters_path, window_size, valid, conf, bb_path, video_path, init_path, repeat_video, print_status)) 
+	if(!readParameters(parameters_path, window_size, valid, conf, bb_path, video_path, init_path, repeat_video, print_status))
 		return;
 
 	repeat_video = show && repeat_video && (video_type != WEBCAM); //Se não mostra, não repete. Webcam n tem repetição
 
 	//Inicia captura do video ou webcam, ou le arquivo da lista de imagens
-    if(!captureOpen(video_path)) 
+    if(!captureOpen(video_path))
 		return;
 
 	//Pega frame inicial
@@ -542,7 +547,7 @@ void TLD(char *parameters_path)
 			return;
 		}
 
-		if(enable_detect) 
+		if(enable_detect)
 			Train(curr_frame, bb, show);
 		//initSIFT(curr_frame, bb);
 		initJudge(curr_frame, bb, valid, conf, show);
@@ -571,6 +576,19 @@ void TLD(char *parameters_path)
 
 	//pause_cap = true;
 	//enable_bb = true;
+
+	#if ESCRITA == 1
+		static std::ofstream outfile;
+		/*
+		TODO
+			Colocar o caminho de escrita aqui!!!!!
+		*/
+		string strSaidaTemplates(saidaTemplates);
+		string caminhoEArquivo(saidaTemplates);
+		caminhoEArquivo = caminhoEArquivo + "/" + "candidatos.txt";
+		outfile.open(caminhoEArquivo);
+	#endif
+
 	while(1)
 	{
 		//if(frame_count == 2021) pause_cap = true; //wtf????
@@ -579,7 +597,7 @@ void TLD(char *parameters_path)
             nextFrame(&next_frame, repeat_video, true);
             if(next_frame.empty())
 			{
-                if(repeat_video) 
+                if(repeat_video)
 					cout << "Could not restart video..." << endl;
 				break;
 			}
@@ -607,7 +625,7 @@ void TLD(char *parameters_path)
 					if(enable_detect)
 					{
 						start_t = clock();
-						detected = Detect(next_frame, d_positions, d_conf, frame_count);
+						detected = Detect(next_frame, d_positions, d_conf, frame_count, outfile, strSaidaTemplates);
 						end_t = clock();
 						elapsed = (double)(end_t - start_t)/CLOCKS_PER_SEC;
 						//printf("Detector Elapsed: %.3lf s\n", elapsed);
@@ -620,7 +638,7 @@ void TLD(char *parameters_path)
 					//printf("IL Elapsed: %.3lf s\n", elapsed);
 				}
 
-                if(show && !object.empty()) 
+                if(show && !object.empty())
 					imshow(OBJECT_WINDOW, object);
 
                 show_save(curr_frame);
@@ -632,7 +650,7 @@ void TLD(char *parameters_path)
             }
 			else
 			{
-				if(enable_detect) 
+				if(enable_detect)
 					Train(curr_frame, bb, show);
 				train = false;
 				show_save(next_frame);
@@ -642,16 +660,20 @@ void TLD(char *parameters_path)
         }
         else
 		{
-			if(reset_key) 
+			if(reset_key)
 				nextFrame(&curr_frame, repeat_video, true);
             curr_frame.copyTo(view_frame);
             show_save(view_frame);
         }
 
-        if(keyboardCallBack()) 
+        if(keyboardCallBack())
 			break;
     }
+
+	#if ESCRITA == 1
+		outfile.close();
+	#endif
 	captureClose();
-	if(!isnan(init_bb[0])) 
+	if(!isnan(init_bb[0]))
 		fclose(bb_file);
 }

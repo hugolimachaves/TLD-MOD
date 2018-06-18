@@ -157,14 +157,17 @@
 	"utils.hpp"
 	<math.h>
 
-1529001551 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
+1529333668 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.cpp
 	"Detector.hpp"
+	<fstream>
+	<iostream>
 
-1528818431 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.hpp
+1529334906 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Detector.hpp
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/imgproc/imgproc.hpp>
 	<opencv2/legacy/legacy.hpp>
 	"../common/utils.hpp"
+	<fstream>
 
 1529004989 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Integrator_Learning.cpp
 	"Integrator_Learning.hpp"
@@ -176,7 +179,7 @@
 	"../common/sift_utils.hpp"
 	"Detector.hpp"
 
-1528818431 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/main.cpp
+1529331846 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/main.cpp
 	<iostream>
 	<opencv2/opencv.hpp>
 	"TLD.hpp"
@@ -243,7 +246,7 @@
 	<set>
 	<valarray>
 
-1441308878 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.hpp
+1529332685 /home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.hpp
 	<iostream>
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/imgproc/imgproc.hpp>
@@ -256,8 +259,9 @@
 	<opencv2/video/tracking.hpp>
 	"../common/utils.hpp"
 
-1529004920 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
+1529096434 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/TLD.cpp
 	"TLD.hpp"
+	<fstream>
 
 1522954404 source:/home/hugo/Documents/Mestrado/codigoRastreador/src/tracking/Tracker.cpp
 	"Tracker.hpp"

@@ -13,6 +13,6 @@ using namespace std;
 using namespace cv;
 
 
-void TLD(char *parameters_path);
+void TLD(char *parameters_path, char *saidaTemplates);
 
 #endif // TLD_HPP_INCLUDED
