@@ -1094,21 +1094,18 @@ void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int f
 	if(ESCRITA){
 			vector<BoundingBox>::iterator unnorm_model_it;
             // para cada tipo (positivo negativo)
-			for(int i = 0; i < 2; i++){
+			for(int i = 0; i < 2; i++)
 			    // verifico se o tamanho aumentou
-                if(unnorm_object_model[i].size() > nNegativeNPositive[i]){
+                if(unnorm_object_model[i].size() > nNegativeNPositive[i])
                     // escrevo as informações da bounding box equivalente antes de ser normalizada
-                    for(unnorm_model_it = unnorm_object_model[i].begin() + nNegativeNPositive[j]; unnorm_model_it < unnorm_object_model[i].end(); unnorm_model_it++, nNegativeNPositive[j]++){
+                    for(unnorm_model_it = unnorm_object_model[i].begin() + nNegativeNPositive[j]; unnorm_model_it < unnorm_object_model[i].end(); unnorm_model_it++, nNegativeNPositive[j]++)
                         writeBBInfos(strSaidaTemplates, unnorm_object_model[unnorm_model_it], frame_number, i);
-					}
-				}
-			}
     }
 	/// end
 }
 
 //Retorna bounding boxes que contém o objeto em 'positions' e suas respectivas similaridades conservativas em 'd_conf'
-bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number){
+bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number, string saidaTemplates){
 	last_ens_candidates.clear();
 	clock_t start_detection = clock();
 	detector_positions.clear();
@@ -1176,7 +1173,7 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
     }
 
     start_t = clock();
-    nearestNeighbor(detector_positions, d_conf);
+    nearestNeighbor(detector_positions, d_conf, frame_number, saidaTemplates);
     end_t = clock();
 
     if(_DEBUG_DETECTOR){
