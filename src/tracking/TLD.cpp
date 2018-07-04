@@ -577,17 +577,17 @@ void TLD(char *parameters_path, char *saidaTemplates)
 	//pause_cap = true;
 	//enable_bb = true;
 
-	#if ESCRITA == 1
+	/*#if ESCRITA == 1
 		static std::ofstream outfile;
-		/*
-		TODO
-			Colocar o caminho de escrita aqui!!!!!
-		*/
+		
+		///TODO: Colocar o caminho de escrita aqui!!!!!
+		
 		string strSaidaTemplates(saidaTemplates);
 		string caminhoEArquivo(saidaTemplates);
 		caminhoEArquivo = caminhoEArquivo + "/" + "candidatos.txt";
 		outfile.open(caminhoEArquivo);
 	#endif
+	*/
 
 	while(1)
 	{
@@ -625,7 +625,7 @@ void TLD(char *parameters_path, char *saidaTemplates)
 					if(enable_detect)
 					{
 						start_t = clock();
-						detected = Detect(next_frame, d_positions, d_conf, frame_count, outfile, strSaidaTemplates);
+						detected = Detect(next_frame, d_positions, d_conf, frame_count/*, strSaidaTemplates*/, saidaTemplates);
 						end_t = clock();
 						elapsed = (double)(end_t - start_t)/CLOCKS_PER_SEC;
 						//printf("Detector Elapsed: %.3lf s\n", elapsed);
