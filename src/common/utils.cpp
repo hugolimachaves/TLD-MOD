@@ -1,5 +1,19 @@
 #include "utils.hpp"
 #include <math.h>
+#include <fstream>
+///NOTE: minhas alterações
+/// Função para salvar x, y, w, h, frame, 0/1 (positivo ou negativo)
+void writeBBInfos(string filename, BoundingBox bb, int frame, bool type){
+
+    std::ofstream ofs;
+    float width = widthBB(bb), height = heightBB(bb);
+
+    ofs.open (filename, std::ofstream::out | std::ofstream::app);
+    ofs << x << " " << y << " " << width << " " << height << " " << frame << int(type) << "\n";
+    ofs.close();
+
+}
+/// end
 
 double L2norm(double hist[], int hist_size){
     double norm = 0.0;

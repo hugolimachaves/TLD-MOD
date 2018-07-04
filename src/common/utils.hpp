@@ -67,6 +67,7 @@ typedef struct _sortElement{	//Elemento para ordenação
 	double val;
 }SortElement;
 
+void writeBBInfos(string filename, BoundingBox bb, int frame, bool type);
 double L2norm(double hist[], int hist_size);
 int maxVal(const void * a, const void * b);
 float widthBB(BoundingBox bb);
