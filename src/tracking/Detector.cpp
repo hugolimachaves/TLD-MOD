@@ -1,20 +1,7 @@
 #include "Detector.hpp"
-#include <fstream>
-#include <iostream>
-#define DEBUG_1 0
-#define DEBUG_2 0
-#define DEBUG_3 0
-#define DEBUG_4 0
-#define ESCRITA 1
-#ifndef ESCRITA
-	#define ESCRITA 0
-#endif
-static int nPos = 0;
-static int nNeg = 0;
-//static vector<String> texto;
-//static int linha = 0;
-
-
+///NOTE: minhas alterações
+#define ESCRITA true
+/// end
 
 //Geração das scanning windows
 #define SCALE_STEP          1.2
@@ -53,11 +40,6 @@ static int nNeg = 0;
 
 typedef int Feature[4]; 		//Par de pontos a ser comparado (x1, y1, x2, y2)
 
-
-#if DEBUG_3 == 1
-    static int contador =0;
-#endif // DEBUG_3
-
 static float 				obj_variance;						//Variância da bb inicial
 static int  				positive[NUM_FERNS*NUM_CODE],		//Contador de amostras positivas em cada classificador
 							negative[NUM_FERNS*NUM_CODE];		//Contador de amostras negativas em cada classificador
@@ -65,6 +47,7 @@ static double 				posteriors[NUM_FERNS*NUM_CODE];		//Posteriores dos ferns conca
 static vector<BoundingBox> 	scanning_windows;       			//Posições dos candidatos
 static Feature 				features[NUM_FERNS*NUM_FEAT_FERN];	//Features dos ferns concatenadas
 static vector<ModelSample> 	object_model[2];         			//1 = amostras positivas, 0 = amostras negativas
+static vector<BoundingBox> 	unnorm_object_model[2];         			//1 = amostras positivas, 0 = amostras negativas
 static Point2f				p_pointer,							//Próxima posição disponivel para amostras positivas
 							n_pointer;							//Próxima posição disponivel para amostras negativas
 static Mat 					dataset_p,							//Imagem com amostras positivas
@@ -89,29 +72,16 @@ ModelSample::~ModelSample(){
 }
 
 //Similaridade entre amostras. No intervalo [0., 1.]
-//voce passa uma imagem para comparção aqui
 double ModelSample::similarity(Mat pattern2)
 {
-	//assegurar que esta no tamanho padrao e que pattern2 tenha a mesma dimensao que nn_img
 	if(nn_img.cols != DEFAULT_PATCH_SIZE || nn_img.rows != DEFAULT_PATCH_SIZE || nn_img.rows != pattern2.rows || nn_img.cols != pattern2.cols)
 		return 0.;
 
-	double 	corr = 0.,norm1 = 0.,norm2 = 0.,norm, gray1, gray2;
+	double 	corr = 0.,
+			norm1 = 0.,
+			norm2 = 0.,
+			norm, gray1, gray2;
 	double *nn_row, *nn_cell, *patt_row, *patt_cell;
-
-
-	#if DEBUG_3
-        std::cout<<"Entrou no similarity: "<< contador++ <<std::endl;
-		namedWindow( "nn_img", WINDOW_AUTOSIZE ); // Create a window for display.
-		resizeWindow("nn_img", 200,200);
-		imshow("nn_img",nn_img);
-		namedWindow( "pattern2", WINDOW_AUTOSIZE ); // Create a window for display.
-		resizeWindow("pattern2", 200,200);
-		imshow("pattern2",pattern2);
-		waitKey(100);
-	#endif
-
-
 
 	for(int j = 0; j < DEFAULT_PATCH_SIZE; j++)
 	{
@@ -119,7 +89,6 @@ double ModelSample::similarity(Mat pattern2)
 		patt_row = pattern2.ptr<double>(j);
 		nn_cell = &nn_row[0];
 		patt_cell = &patt_row[0];
-		//vai fazer bitwise operation
 		for(int i = 0; i < DEFAULT_PATCH_SIZE; i++, nn_cell++, patt_cell++)
 		{
 			gray1 = nn_cell[0];
@@ -127,12 +96,9 @@ double ModelSample::similarity(Mat pattern2)
 			corr += gray1 * gray2;
 			norm1 += gray1 * gray1;
 			norm2 += gray2 * gray2;
-			#if DEBUG_3
-				std::cout<<"gray1 :"<<gray1<<"- gray2: "<<gray2<<std::endl;
-			#endif
 		}
 	}
-	//norma a ser dividida
+
 	norm = sqrt(norm1*norm2);
 
 	if(norm1 < EPSILON && norm2 < EPSILON) corr = 1.; //Duas imagens praticamente vazias
@@ -140,7 +106,7 @@ double ModelSample::similarity(Mat pattern2)
 	else return 0.;
 
 	corr = (corr + 1.)/2.;
-	//retorna algo semelhante a uma correlação
+
 	return corr;
 }
 
@@ -157,15 +123,11 @@ Candidate::~Candidate()
 }
 
 //Similaridade entre amostra e modelo. No intervalo [0., 1.]
-double modelSimilatiry(vector<ModelSample> model, Mat pattern, int &isin)
-{
-	if(model.empty())
-	{
+double modelSimilatiry(vector<ModelSample> model, Mat pattern, int &isin){
+	if(model.empty()){
         isin = -1;
         return 0.;
 	}
-
-
 
 	double max_sim, sim;
 	vector<ModelSample>::iterator sample;
@@ -176,120 +138,102 @@ double modelSimilatiry(vector<ModelSample> model, Mat pattern, int &isin)
     max_sim = (*(model.begin())).similarity(pattern);
     max_pos = 0;
 
-	for(sample = model.begin()+1; sample != model.end(); sample++, i++)
-	{
+	for(sample = model.begin()+1; sample != model.end(); sample++, i++){
         sim = (*sample).similarity(pattern);
-		if(sim > max_sim)
-		{
+		if(sim > max_sim){
 			max_sim = sim;
 			max_pos = i;
 		}
 	}
 
-	if(max_sim >= THE_SAME)
-		isin = max_pos;
+	if(max_sim >= THE_SAME) isin = max_pos;
 
 	return max_sim;
 }
 
 //Similaridade relativa. Amostra e todo o modelo. No intervalo [0., 1.]
-double relativeSimilarity(Mat pattern, int &isin_p, int &isin_n)
-{
+double relativeSimilarity(Mat pattern, int &isin_p, int &isin_n){
 	double pos_sim, neg_sim, sim;
 	isin_p = isin_n = -1;
 
-	if(object_model[1].empty())
-		return 0.;
-	if(object_model[0].empty())
-		return 1.;
+	if(object_model[1].empty()) return 0.;
+	if(object_model[0].empty()) return 1.;
 
 	neg_sim = modelSimilatiry(object_model[0], pattern, isin_n); //em [0., 1.]
 	pos_sim = modelSimilatiry(object_model[1], pattern, isin_p); //em [0., 1.]
 
 //	if(pos_sim + neg_sim != 0) sim = pos_sim / (pos_sim + neg_sim);
 //	else sim = 0.;
-	if(pos_sim + neg_sim != 2)
-		sim = (1. - neg_sim) / (2 - pos_sim - neg_sim);
-	else if(pos_sim == neg_sim)
-		sim = 0.5;
-	else
-		sim = 0.;
+	if(pos_sim + neg_sim != 2) sim = (1. - neg_sim) / (2 - pos_sim - neg_sim);
+	else if(pos_sim == neg_sim) sim = 0.5;
+	else sim = 0.;
 	return sim;
 }
 
 void fastSimilarity(Mat nn_img, double &relative_sim, double &conservative_sim, int &isin_p, int &isin_n){
-	int i = 0, max_pos = -1,pos_size = ceil(object_model[1].size()/2.);
-	double 	pos_sim = 0.,neg_sim = 0.,earl_sim = 0.,sim;
+	int i = 0, max_pos = -1,
+		pos_size = ceil(object_model[1].size()/2.);
+	double 	pos_sim = 0.,
+			neg_sim = 0.,
+			earl_sim = 0.,
+			sim;
 	vector<ModelSample>::iterator sample;
+
 	isin_p = isin_n = -1;
-	if(object_model[1].empty())
-	{
+	if(object_model[1].empty()){
         relative_sim = conservative_sim = 0.;
         return;
     }
-	if(object_model[0].empty())
-	{
+	if(object_model[0].empty()){
         relative_sim = conservative_sim = 1.;
         return;
     }
 
 	//Amostras positivas
-	for(sample = object_model[1].begin(); sample != object_model[1].end(); sample++, i++)
-	{
+	for(sample = object_model[1].begin(); sample != object_model[1].end(); sample++, i++){
         sim = (*sample).similarity(nn_img);
-		if(sim > pos_sim)
-		{
+		if(sim > pos_sim){
 			pos_sim = sim;
 			max_pos = i;
 		}
-		if(i < pos_size && sim > earl_sim)
-			earl_sim = sim;
+		if(i < pos_size && sim > earl_sim) earl_sim = sim;
 	}
-	if(pos_sim >= THE_SAME)
-		isin_p = max_pos;
+	if(pos_sim >= THE_SAME) isin_p = max_pos;
+
 	max_pos = -1;
 	i = 0;
 
 	//Amostras negativas
-	for(sample = object_model[0].begin(); sample != object_model[0].end(); sample++, i++)
-	{
+	for(sample = object_model[0].begin(); sample != object_model[0].end(); sample++, i++){
         sim = (*sample).similarity(nn_img);
-		if(sim > neg_sim)
-		{
+		if(sim > neg_sim){
 			neg_sim = sim;
 			max_pos = i;
 		}
 	}
-	if(neg_sim > THE_SAME)
-		isin_n = max_pos;
+	if(neg_sim > THE_SAME) isin_n = max_pos;
 
 //	if(pos_sim + neg_sim != 0) relative_sim = pos_sim / (pos_sim + neg_sim);
 //	else relative_sim = 0.;
 //	if(earl_sim + neg_sim != 0) conservative_sim = earl_sim / (earl_sim + neg_sim);
 //	else conservative_sim = 0.;
 
-	if(pos_sim + neg_sim != 2)
-		relative_sim = (1. - neg_sim) / (2 - pos_sim - neg_sim);
-	else if(pos_sim == neg_sim)
-		relative_sim = 0.5;
-	else
-		relative_sim = 0.;
+	if(pos_sim + neg_sim != 2) relative_sim = (1. - neg_sim) / (2 - pos_sim - neg_sim);
+	else if(pos_sim == neg_sim) relative_sim = 0.5;
+	else relative_sim = 0.;
 
-	if(earl_sim + neg_sim != 2)
-		conservative_sim = (1. - neg_sim) / (2 - earl_sim - neg_sim);
-	else if(earl_sim == neg_sim)
-		conservative_sim = 0.5;
-	else
-		conservative_sim = 0.;
+	if(earl_sim + neg_sim != 2) conservative_sim = (1. - neg_sim) / (2 - earl_sim - neg_sim);
+	else if(earl_sim == neg_sim) conservative_sim = 0.5;
+	else conservative_sim = 0.;
 }
 
 //Similaridade com a metade inicial do modelo. No intervalo [0.5, 1.]
 double earliestSimilatiry(vector<ModelSample> model, Mat pattern){
-    if(model.empty())
-		return 0.;
+    if(model.empty()) return 0.;
 
 	double max_sim, sim;
-	vector<ModelSample>::iterator   sample, middle = model.begin() + ceil(model.size()/2.);
+	vector<ModelSample>::iterator   sample,
+                                    middle = model.begin() + ceil(model.size()/2.);
 
     max_sim = (*(model.begin())).similarity(pattern);
 
@@ -301,49 +245,45 @@ double earliestSimilatiry(vector<ModelSample> model, Mat pattern){
 }
 
 //Similaridade conservativa. Amostra, modelo negativo e metade do positivo. No intervalo [1/3, 2/3]
-double conservativeSimilarity(Mat pattern)
-{
+double conservativeSimilarity(Mat pattern){
 	double earl_sim, neg_sim, sim;
 	int isin; //ignorado
 
-	if(object_model[1].empty())
-		return 0.;
-	if(object_model[0].empty())
-		return 1.;
+	if(object_model[1].empty()) return 0.;
+	if(object_model[0].empty()) return 1.;
 
 	neg_sim = modelSimilatiry(object_model[0], pattern, isin); //[0.,1.]
 	earl_sim = earliestSimilatiry(object_model[1], pattern); //[0.,1.]
 //	if(earl_sim + neg_sim != 0) sim = earl_sim / (earl_sim + neg_sim);
 //	else sim = 0.;
-	if(earl_sim + neg_sim != 2)
-		sim = (1. - neg_sim) / (2 - earl_sim - neg_sim);
-	else if(earl_sim == neg_sim)
-		sim = 0.5;
+	if(earl_sim + neg_sim != 2) sim = (1. - neg_sim) / (2 - earl_sim - neg_sim);
+	else if(earl_sim == neg_sim) sim = 0.5;
 	else sim = 0.;
-		return sim;
+	return sim;
 }
 
 //Scanning windows - seta posições a serem scaneadas
+/// Existe um variacao de escala nas janelas que comecam com 0.16 (SCALE_STEP(1.2) ** -SCALE_EXP(10)) do tamanho da bounding box e aumenta em escalas de 1.2 (SCALE_STEP)
+/// a janela vai deslizando vertical e horizontalmente com acrescimos de 10% em relacao ao tamanho da janela em ambas direcoes
 void scanningWindows(int img_width, int img_height, int bb_width, int bb_height){
     float scale = pow(SCALE_STEP,-SCALE_EXP);
-	float window_shift_x,window_shift_y;
-	int window_witdh,window_height;
+	float window_shift_x,
+		window_shift_y;
+	int window_witdh,
+        window_height;
     BoundingBox window;
 
-    for(int i = 0; i < 2*SCALE_EXP+1; i++, scale*=SCALE_STEP)
-	{
+    for(int i = 0; i < 2*SCALE_EXP+1; i++, scale*=SCALE_STEP){
         window_witdh = rint(scale*bb_width);
         window_height = rint(scale*bb_height);
-        if(window_witdh < MIN_BB || window_height < MIN_BB)
-			continue;
+        // MIN_BB vale 20 declarado no utils.hpp
+        if(window_witdh < MIN_BB || window_height < MIN_BB) continue;
 
         window_shift_x = rint(SHIFT_STEP*window_witdh);
         window_shift_y = rint(SHIFT_STEP*window_height);
 
-        for(int left = 2; left < img_width - window_witdh; left+=window_shift_x)
-		{
-            for(int top = 2; top < img_height - window_height; top+=window_shift_y)
-			{
+        for(int left = 2; left < img_width - window_witdh; left+=window_shift_x){
+            for(int top = 2; top < img_height - window_height; top+=window_shift_y){
                 window[0] = left;
                 window[1] = top;
                 window[2] = left + window_witdh;
@@ -355,8 +295,7 @@ void scanningWindows(int img_width, int img_height, int bb_width, int bb_height)
 }
 
 //Define, permuta e seleciona features
-void setFeatures()
-{
+void setFeatures(){
 	//Todos os possíveis pares verticais (x fixo) de pontos do patch normalizado. (Tamanho calculado a partir dos for's aninhados)
 	Feature points[DEFAULT_PATCH_SIZE*DEFAULT_PATCH_SIZE*(DEFAULT_PATCH_SIZE-1)/2];
 	Feature *point;
@@ -368,12 +307,9 @@ void setFeatures()
 	point = &points[0];
 	index = &indexes[0];
 	//Gera todas as possibilidades verticais. Duplica indice em indexes para considerar comparações horizontais.
-    for(int x = 0; x < DEFAULT_PATCH_SIZE; x++)
-	{
-		for(int y1 = 0; y1 < DEFAULT_PATCH_SIZE-1; y1++)
-		{
-			for(int y2 = y1+1; y2 < DEFAULT_PATCH_SIZE; y2++, ind_points++)
-			{
+    for(int x = 0; x < DEFAULT_PATCH_SIZE; x++){
+		for(int y1 = 0; y1 < DEFAULT_PATCH_SIZE-1; y1++){
+			for(int y2 = y1+1; y2 < DEFAULT_PATCH_SIZE; y2++, ind_points++){
 				(*point)[0] = x;
 				(*point)[1] = y1;
 				(*point)[2] = x;
@@ -386,8 +322,7 @@ void setFeatures()
 
     int aux;
 	//Permuta comparações horizontais e verticais (indexes)
-    for(int i = 0; i < tam_indexes; i++)
-	{
+    for(int i = 0; i < tam_indexes; i++){
         ind_points = rand()%tam_indexes;
         aux = indexes[i];
         indexes[i] = indexes[ind_points];
@@ -397,19 +332,16 @@ void setFeatures()
 	bool vertical;
 	//Seleciona as primeiras features e corrige coordenadas (par = vertical, impar = horizontal).
 	point = &features[0];
-	for(int i = 0; i < NUM_FERNS*NUM_FEAT_FERN; i++)
-	{
+	for(int i = 0; i < NUM_FERNS*NUM_FEAT_FERN; i++){
 		vertical = indexes[i]%2==0;
 		ind_points = indexes[i]/2;
-		if(vertical)
-		{
+		if(vertical){
 			(*point)[0] = points[ind_points][0];
 			(*point)[1] = points[ind_points][1];
 			(*point)[2] = points[ind_points][2];
 			(*point++)[3] = points[ind_points][3];
 		}
-		else
-		{ //Horizontal -> transpoe cada ponto da comparação
+		else{ //Horizontal -> transpoe cada ponto da comparação
 			(*point)[0] = points[ind_points][1];
 			(*point)[1] = points[ind_points][0];
 			(*point)[2] = points[ind_points][3];
@@ -417,15 +349,12 @@ void setFeatures()
 		}
 	}
 
-	if(_DEBUG_DETECTOR && _DEBUG_WORKSPACE)
-	{
+	if(_DEBUG_DETECTOR && _DEBUG_WORKSPACE){
 		Mat a(150,150,CV_8UC1, Scalar(0.));
 		Point2f p1,p2;
-		for(int fern = 0; fern < NUM_FERNS; fern++)
-		{
+		for(int fern = 0; fern < NUM_FERNS; fern++){
 			int index = fern*NUM_FEAT_FERN;
-			for(int i = 0; i < NUM_FEAT_FERN; i++, index++)
-			{
+			for(int i = 0; i < NUM_FEAT_FERN; i++, index++){
 				p1.x = features[index][0]*10;
 				p1.y = features[index][1]*10;
 				p2.x = features[index][2]*10;
@@ -442,37 +371,36 @@ void setFeatures()
 }
 
 //Gera feature code
-int getCode(Mat img, int fern_index)
-{
+int getCode(Mat img, int fern_index){
     Feature *fern_features = &features[fern_index*NUM_FEAT_FERN];
 
     int code = 0;
 	float x, y;
     uchar color1, color2;
-    for(int i = 0; i < NUM_FEAT_FERN; i++, fern_features++)
-	{
+    for(int i = 0; i < NUM_FEAT_FERN; i++, fern_features++){
         color1 = img.at<uchar>(fern_features[0][1],fern_features[0][0]);
         color2 = img.at<uchar>(fern_features[0][3],fern_features[0][2]);
         code<<= 1;
         if(color2 > color1) code|=1;
     }
+
     return code;
 }
 
 //Seleciona janelas proximas e distantes (se negative = true). Calcula envoltórias das amostras positivas.
 //Retorna no máximo NUM_POS_SAMPLE amostras positivas e todas as negativas encontradas, ambas ordenadas pelo overlap.
-void setOverlapingWindows(BoundingBox position, bool negative = true)
-{
+void setOverlapingWindows(BoundingBox position, bool negative = true){
 	good_windows.clear();
 	bad_windows.clear();
 
 	//Ordena janelas por overlap
-	int sw_size = scanning_windows.size(),index = 0;
-	SortElement *overlap_vector = (SortElement*) malloc(sizeof(SortElement)*sw_size),*overlap_pointer = &overlap_vector[0];
+	int sw_size = scanning_windows.size(),
+		index = 0;
+	SortElement *overlap_vector = (SortElement*) malloc(sizeof(SortElement)*sw_size),
+				*overlap_pointer = &overlap_vector[0];
 	vector<BoundingBox>::iterator window;
 
-	for(window = scanning_windows.begin(); window != scanning_windows.end(); window++, index++, overlap_pointer++)
-	{
+	for(window = scanning_windows.begin(); window != scanning_windows.end(); window++, index++, overlap_pointer++){
 		(*overlap_pointer).index = index;
 		(*overlap_pointer).val = overlap(position, *window);
 	}
@@ -483,14 +411,12 @@ void setOverlapingWindows(BoundingBox position, bool negative = true)
 	good_windows_hull[2] = good_windows_hull[3] = 0;
 
 	//Seleciona janelas positivas (maiores overlaps) e calcula envoltoria
-	for(int i = 0; i < sw_size; i++)
-	{
-		if(good_windows.size() < NUM_POS_SAMPLE && overlap_vector[i].val > GOOD_WINDOW_TH)
-		{
+	for(int i = 0; i < sw_size; i++){
+		if(good_windows.size() < NUM_POS_SAMPLE && overlap_vector[i].val > GOOD_WINDOW_TH){
 			index = overlap_vector[i].index;
 			good_windows.push_back(scanning_windows[index]);
 
-			//Menor envoltoria convexa das bounding boxes selecionadas
+			//Menor envoltoria convexa retangular das bounding boxes selecionadas
 			if(scanning_windows[index][0] < good_windows_hull[0])
 				good_windows_hull[0] = scanning_windows[index][0];
 			if(scanning_windows[index][1] < good_windows_hull[1])
@@ -504,17 +430,13 @@ void setOverlapingWindows(BoundingBox position, bool negative = true)
 	}
 
 	//Seleciona janelas negativas (menores overlaps)
-	if(negative)
-	{
-		for(int i = sw_size - 1; i >= 0; i--)
-		{
-			if(overlap_vector[i].val < BAD_WINDOW_TH)
-			{
+	if(negative){
+		for(int i = sw_size - 1; i >= 0; i--){
+			if(overlap_vector[i].val < BAD_WINDOW_TH){
 				index = overlap_vector[i].index;
 				bad_windows.push_back(scanning_windows[index]);
 			}
-			else
-				break;
+			else break;
 		}
 	}
 
@@ -522,6 +444,7 @@ void setOverlapingWindows(BoundingBox position, bool negative = true)
 }
 
 //Normalização para o ensemble: ajusta tamanho
+/// acredito que seja aqui que ocorra a normalização dos bounding boxes
 void normalize(Mat img, Mat blur_img, BoundingBox bb, float shift_x, float shift_y, Mat &sample, Mat &ens_img, Mat &nn_img){
 	ens_img.release();
 	nn_img.release();
@@ -531,14 +454,15 @@ void normalize(Mat img, Mat blur_img, BoundingBox bb, float shift_x, float shift
 	nn_img = Mat(DEFAULT_PATCH_SIZE, DEFAULT_PATCH_SIZE, CV_64FC1);
 	sample = Mat(DEFAULT_PATCH_SIZE, DEFAULT_PATCH_SIZE, img.type());
 
-	int step_w = floor(widthBB(bb)/DEFAULT_PATCH_SIZE),step_h = floor(heightBB(bb)/DEFAULT_PATCH_SIZE),x = floor(bb[0] - shift_x + step_w/2.), //Posição correta nas imagens
+	int step_w = floor(widthBB(bb)/DEFAULT_PATCH_SIZE),
+		step_h = floor(heightBB(bb)/DEFAULT_PATCH_SIZE),
+		x = floor(bb[0] - shift_x + step_w/2.), //Posição correta nas imagens
 		y = floor(bb[1] - shift_y + step_h/2.);
 	double *nn_row, *nn_cell, nn_mean = 0.;
 	uchar 	*img_row, *blur_row, *ens_row, *sample_row,
 			*img_cell, *blur_cell, *ens_cell, *sample_cell;
 
-	for(int j = 0; j < DEFAULT_PATCH_SIZE; j++)
-	{
+	for(int j = 0; j < DEFAULT_PATCH_SIZE; j++){
 		img_row = img.ptr<uchar>(y);
 		blur_row = blur_img.ptr<uchar>(y);
 		ens_row = ens_img.ptr<uchar>(j);
@@ -551,8 +475,7 @@ void normalize(Mat img, Mat blur_img, BoundingBox bb, float shift_x, float shift
 		nn_cell = &nn_row[0];
 		sample_cell = &sample_row[0];
 
-		for(int i = 0; i < DEFAULT_PATCH_SIZE; img_cell+=step_w, blur_cell+=step_w, ens_cell++, nn_cell++, sample_cell++, i++)
-		{
+		for(int i = 0; i < DEFAULT_PATCH_SIZE; img_cell+=step_w, blur_cell+=step_w, ens_cell++, nn_cell++, sample_cell++, i++){
 			ens_cell[0] = blur_cell[0];
 			nn_cell[0] = (double)img_cell[0];
 			sample_cell[0] = img_cell[0];
@@ -566,8 +489,7 @@ void normalize(Mat img, Mat blur_img, BoundingBox bb, float shift_x, float shift
 }
 
 //Seleciona patches positivos e gera positivos sinteticos
-void setPositiveSamples(Mat frame, int num_warps)
-{
+void setPositiveSamples(Mat frame, int num_warps){
     //Amostras extraídas e sintéticas
 	PatchGenerator generator(0, 0, 5, true, 1-0.02, 1+0.02,-20*CV_PI/180, 20*CV_PI/180, -20*CV_PI/180, 20*CV_PI/180); //Gerador de warps
 	RNG& rng = theRNG(); //Random number generator
@@ -589,17 +511,16 @@ void setPositiveSamples(Mat frame, int num_warps)
 	getRectSubPix(frame, hull_size, hull_center, warped);
 	SMOOTH(warped, blur_img);
 
-	for(int i = 0; i < num_warps; i++)
-	{
-        if(i > 0)
-		{
+	for(int i = 0; i < num_warps; i++){
+        // pula  a primeira geraçao para usar a primeira amostra original
+        if(i > 0) {
 			generator(frame, hull_center, warped, hull_size, rng); //Gera warping aleatório
 			SMOOTH(warped, blur_img);
 		}
 
-        for(window = good_windows.begin(); window != good_windows.end(); window++)
-		{
+        for(window = good_windows.begin(); window != good_windows.end(); window++){
             //Prepara padrão usado pelo comitê e nn. E normaliza tamanho da imagem para ser mostrada
+            /// Normalização dentro do setPositiveSamples
 			normalize(warped, blur_img, *window, good_windows_hull[0], good_windows_hull[1], good_samples[index].image,
 																good_samples[index].ens_img, good_samples[index].nn_img);
 			//Avalia amostras positivas no comitê
@@ -613,8 +534,7 @@ void setPositiveSamples(Mat frame, int num_warps)
 }
 
 //Seleciona patches negativos. Nenhum negativo sintetico eh gerado.
-void setNegativeSamples(Mat frame)
-{
+void setNegativeSamples(Mat frame){
 	vector<BoundingBox>::iterator window;
 	ModelSample bad_sample;
 	Mat blur_img;
@@ -624,12 +544,10 @@ void setNegativeSamples(Mat frame)
 	SMOOTH(frame, blur_img);
 
 	//Seleciona amostras distantes e com variância alta
-	for(window = bad_windows.begin(); window != bad_windows.end(); window++, var_pointer++)
-	{
+	for(window = bad_windows.begin(); window != bad_windows.end(); window++, var_pointer++){
 		//if(!VAR_TEST(*var_pointer)) continue;
-		if((*var_pointer) > (obj_variance * VARIANCE_THRESHOLD/2.))
-			continue;
-
+		if((*var_pointer) > (obj_variance * VARIANCE_THRESHOLD/2.)) continue;
+        /// Normalização dentro do setNegativeSamples
 		normalize(frame, blur_img, *window, 0, 0, bad_sample.image, bad_sample.ens_img, bad_sample.nn_img);
 
 		//Avalia amostras negativas
@@ -642,13 +560,11 @@ void setNegativeSamples(Mat frame)
 	bad_sample.ens_img.release();
 	bad_sample.nn_img.release();
 
-	if(var)
-		free(var);
+	if(var) free(var);
 }
 
 //Medidas dos ferns
-double votes(int code[NUM_FERNS])
-{
+double votes(int code[NUM_FERNS]){
 	double average = 0.;
 	for (int fern = 0; fern < NUM_FERNS; fern++)
 		average += posteriors[fern*NUM_CODE + code[fern]];
@@ -656,17 +572,13 @@ double votes(int code[NUM_FERNS])
 }
 
 //Atualiza probabilidades do comitê
-void updatePosteriors(ModelSample sample, bool positive_label)
-{
+void updatePosteriors(ModelSample sample, bool positive_label){
 	int p, n, index;
 
-	for(int fern = 0; fern < NUM_FERNS; fern++)
-	{
+	for(int fern = 0; fern < NUM_FERNS; fern++){
 		index = fern*NUM_CODE + sample.code[fern];
-		if(positive_label)
-			positive[index]++;
-		else
-			negative[index]++;
+		if(positive_label) positive[index]++;
+		else negative[index]++;
 
 		p = positive[index];
 		n = negative[index];
@@ -676,8 +588,7 @@ void updatePosteriors(ModelSample sample, bool positive_label)
 }
 
 //Treina comite
-void ensTrain(int bootstrap = 2)
-{
+void ensTrain(int bootstrap = 2){
 	int g_size = good_samples.size(),
 		b_size = bad_samples.size(),
 		samples_size = g_size + b_size;
@@ -685,28 +596,22 @@ void ensTrain(int bootstrap = 2)
 	vector<int>::iterator index;
 	vector<ModelSample>::iterator sample;
 
-	for(int i = 0; i < samples_size; i++)
-		indexes[i] = i;
+	for(int i = 0; i < samples_size; i++) indexes[i] = i;
 
 	random_shuffle(indexes.begin(), indexes.end()); //Permuta todos
 	//random_shuffle(indexes.begin(), indexes.begin()+g_size); //Permuta positivos
 	//random_shuffle(indexes.begin() + g_size, indexes.end()); //Permuta negativos
 	for(int i = 0; i < bootstrap; i++){
-		for(index = indexes.begin(); index != indexes.end(); index++)
-		{
-			if(*index < g_size)
-			{
+		for(index = indexes.begin(); index != indexes.end(); index++){
+			if(*index < g_size){
 				sample = good_samples.begin() + (*index);
-				if(!ENS_TEST(votes((*sample).code)))
-				{ //Falso negativo
+				if(!ENS_TEST(votes((*sample).code))){ //Falso negativo
 					updatePosteriors(*sample, true);
 				}
 			}
-			else
-			{
+			else{
 				sample = bad_samples.begin() + (*index) - g_size;
-				if(ENS_TEST(votes((*sample).code)))
-				{ //Falso positivo
+				if(ENS_TEST(votes((*sample).code))){ //Falso positivo
 					updatePosteriors(*sample, false);
 				}
 			}
@@ -717,29 +622,23 @@ void ensTrain(int bootstrap = 2)
 }
 
 //Adiciona amostra na imagem do dataset
-void addSample(Mat normalized_sample, int label, int isin)
-{
-	if(label == 0)
-	{
+void addSample(Mat normalized_sample, int label, int isin){
+	if(label == 0){
         normalized_sample.copyTo(dataset_n(Rect(n_pointer.x, n_pointer.y, DEFAULT_PATCH_SIZE, DEFAULT_PATCH_SIZE)));
         n_pointer.y+= DEFAULT_PATCH_SIZE;
-        if(n_pointer.y + DEFAULT_PATCH_SIZE > dataset_n.size().height)
-		{
+        if(n_pointer.y + DEFAULT_PATCH_SIZE > dataset_n.size().height){
             n_pointer.y = 0;
             n_pointer.x+= DEFAULT_PATCH_SIZE;
-            if(n_pointer.x + DEFAULT_PATCH_SIZE > dataset_n.size().width)
-			{
+            if(n_pointer.x + DEFAULT_PATCH_SIZE > dataset_n.size().width){
                 n_pointer.x = n_pointer.y = 0;
                 dataset_n = 255.; //Limpa
             }
         }
 	}
-	else
-	{
+	else {
         if(isin == -1 || isin == object_model[1].size()-2)
             normalized_sample.copyTo(dataset_p(Rect(p_pointer.x, p_pointer.y, normalized_sample.cols, normalized_sample.rows)));
-        else
-		{
+        else{
             vector<ModelSample>::iterator sample;
             Mat img;
             Point2f aux;
@@ -749,17 +648,14 @@ void addSample(Mat normalized_sample, int label, int isin)
             aux.x = 0.;
             aux.y = 0.;
             //if(object_model[1].size() > 400) shift = (object_model[1].size()/400)*400;
-            for(sample = object_model[1].begin() /*+ shift + isin + 1*/; sample != object_model[1].end(); sample++)
-			{
+            for(sample = object_model[1].begin() /*+ shift + isin + 1*/; sample != object_model[1].end(); sample++){
                 (*sample).image.copyTo(img); //Realoca se não tiver o tamanho correto. Não precisa de release.
                 img.copyTo(dataset_p(Rect(aux.x, aux.y, DEFAULT_PATCH_SIZE, DEFAULT_PATCH_SIZE)));
                 aux.y+= DEFAULT_PATCH_SIZE;
-                if(aux.y >= dataset_p.size().height)
-				{
+                if(aux.y >= dataset_p.size().height){
                     aux.y = 0;
                     aux.x+= DEFAULT_PATCH_SIZE;
-					if(aux.x >= dataset_p.size().width)
-					{
+					if(aux.x >= dataset_p.size().width){
 						aux.x = aux.y = 0;
 						dataset_p = 255.; //Limpa
 					}
@@ -767,12 +663,10 @@ void addSample(Mat normalized_sample, int label, int isin)
             }
         }
 		p_pointer.y+= DEFAULT_PATCH_SIZE;
-		if(p_pointer.y + DEFAULT_PATCH_SIZE > dataset_p.size().height)
-		{
+		if(p_pointer.y + DEFAULT_PATCH_SIZE > dataset_p.size().height){
 			p_pointer.y = 0;
 			p_pointer.x+= DEFAULT_PATCH_SIZE;
-			if(p_pointer.x + DEFAULT_PATCH_SIZE > dataset_p.size().width)
-			{
+			if(p_pointer.x + DEFAULT_PATCH_SIZE > dataset_p.size().width){
                 p_pointer.x = p_pointer.y = 0;
                 dataset_p = 255.; //Limpa
 			}
@@ -781,27 +675,25 @@ void addSample(Mat normalized_sample, int label, int isin)
 }
 
 //Treina nearest neighbor. Se ens_filter = true, utiliza para o treinamento apenas amostras que passam pelo comitê
-void nnTrain(bool show, bool ens_filter = false)
-{
-	int g_size = good_samples.size(), //Numero das amostras positivias (?)
-		b_size = bad_samples.size(), ////Numero das amostras negativas (?)
+void nnTrain(bool show, bool ens_filter = false){
+	int g_size = good_samples.size(),
+		b_size = bad_samples.size(),
 		isin_p, isin_n, //ignorados
 		vote_pointer = 0;
 	double conf, vote;
 	vector<int> indexes(g_size);
 	vector<int>::iterator index;
 	vector <ModelSample>::iterator sample;
+	///Note: minhas alterações
+	vector<BoundingBox>::iterator unnorm_sample;
 	SortElement *vote_list = (SortElement*)malloc(sizeof(SortElement)*b_size);
 
-	for(int i = 0; i < g_size; i++)
-		indexes[i] = i;
+	for(int i = 0; i < g_size; i++) indexes[i] = i;
 
 	sample = bad_samples.end()-1;
-	for(int i = b_size - 1; i >= 0; i--, sample--)
-	{
+	for(int i = b_size - 1; i >= 0; i--, sample--){
 		vote = votes((*sample).code);
-		if(ens_filter && !ENS_TEST(vote))
-			continue; //Ignora amostras classificadas corretamente pelo comitê
+		if(ens_filter && !ENS_TEST(vote)) continue; //Ignora amostras classificadas corretamente pelo comitê
         vote_list[vote_pointer].val = (float)vote;
         vote_list[vote_pointer].index = i;
         vote_pointer++;
@@ -819,33 +711,45 @@ void nnTrain(bool show, bool ens_filter = false)
 	//random_shuffle(indexes.begin()+g_size, indexes.end()); //Permuta negativos
 	//random_shuffle(indexes.begin()+1, indexes.begin()+NUM_NEG_SAMPLE); //Permuta parte
 
-	for(index = indexes.begin(); index != indexes.end(); index++)
-	{
-		if(*index < g_size)
-		{
+	for(index = indexes.begin(); index != indexes.end(); index++){
+		if(*index < g_size){
 			sample = good_samples.begin() + (*index);
+			///NOTE: minhas alterações
+			unnorm_sample = good_windows.begin() + (*index);
+			///end
 			conf = relativeSimilarity((*sample).nn_img, isin_p, isin_n);
+
 			//if(NN_TEST_MARGIN_P(conf)){ //Falsos negativos e fracos positivos
-			if(!NN_TEST(conf))
-			{ //Falsos negativos
-				if(isin_p == -1 || isin_p == object_model[1].size() - 1)
-					object_model[1].push_back(*sample); // adicionando ao object model
-				else
-					object_model[1].insert(object_model[1].begin() + isin_p + 1, *sample); //Insere depois da amostra similar
-				if(show)
-					addSample((*sample).image, 1, isin_p);
+			if(!NN_TEST(conf)){ //Falsos negativos
+				if(isin_p == -1 || isin_p == object_model[1].size() - 1){
+                    object_model[1].push_back(*sample);
+                    ///NOTE: minhas alterações
+                    unnorm_object_model[1].push_back(*unnorm_sample);
+                    ///end
+				}
+				else{
+                    object_model[1].insert(object_model[1].begin() + isin_p + 1, *sample); //Insere depois da amostra similar
+                    ///NOTE: minhas alterações
+                    unnorm_object_model[1].insert(unnorm_object_model[1].begin() + isin_p + 1, *unnorm_sample);
+                    ///end
+				}
+				if(show) addSample((*sample).image, 1, isin_p);
 			}
 		}
-		else
-		{
+		else{
 			sample = bad_samples.begin() + (*index) - g_size;
+			///NOTE: minhas alterações
+             unnorm_sample = bad_windows.begin() + (*index) - g_size;
+            ///end
 			conf = relativeSimilarity((*sample).nn_img, isin_p, isin_n);
-			if(NN_TEST_MARGIN_N(conf))
-			{ //Falso positivo e fracos negativos
+
+			if(NN_TEST_MARGIN_N(conf)){ //Falso positivo e fracos negativos
 			//if(NN_TEST(conf)){ //Falso positivo
-				object_model[0].push_back(*sample); // adicionando ao object model
-				if(show)
-					addSample((*sample).image, 0, -1);
+				object_model[0].push_back(*sample);
+				///NOTE: minhas alterações
+                unnorm_object_model[0].push_back(*unnorm_sample);
+                ///end
+				if(show)  addSample((*sample).image, 0, -1);
 			}
 		}
 	}
@@ -854,8 +758,7 @@ void nnTrain(bool show, bool ens_filter = false)
 }
 
 //Treina detector
-void Train(Mat frame, BoundingBox &position, bool show)
-{
+void Train(Mat frame, BoundingBox &position, bool show){
 	clock_t start_g = clock();
 	DetClear();
 
@@ -871,8 +774,7 @@ void Train(Mat frame, BoundingBox &position, bool show)
 	setFeatures();
 	setOverlapingWindows(position);
 
-	if(good_windows.empty() || bad_windows.empty())
-	{
+	if(good_windows.empty() || bad_windows.empty()){
 		DetClear();
 		return;
 	}
@@ -889,9 +791,9 @@ void Train(Mat frame, BoundingBox &position, bool show)
 	bb_list.clear();
 	free(var);
 
+	/// good_windows e bad_windows ainda mantem uma copia dos samples sem normalização
 	setPositiveSamples(frame, NUM_WARPS_INIT);
 	setNegativeSamples(frame); //Etapa mais lenta.
-
 	ensTrain();
 	nnTrain(show);
 
@@ -900,24 +802,22 @@ void Train(Mat frame, BoundingBox &position, bool show)
 	good_samples.clear();
 	bad_samples.clear();
 
-	if(show)
-	{
+	if(show) {
 		imshow(POSITIVE_WINDOW, dataset_p);
 		imshow(NEGATIVE_WINDOW, dataset_n);
 	}
 	clock_t end_g = clock();
 
 	double elapsed = (double)(end_g - start_g)*1000./CLOCKS_PER_SEC;
-	if(_DEBUG_DETECTOR && _DEBUG_PERF)
-	{
+
+	if(_DEBUG_DETECTOR && _DEBUG_PERF){
         printf("Neg: %d samples. Pos: %d samples\n", (int)object_model[0].size(), (int)object_model[1].size());
         printf("Trainning: %.2f ms\n", elapsed); ///NOTE: considera tempo do waitKey
         getchar();
     }
 }
 
-bool Retrain(Mat frame, BoundingBox &position, bool show)
-{
+bool Retrain(Mat frame, BoundingBox &position, bool show){
 	clock_t start_g = clock();
 
 	float 	frame_width = frame.size().width,
@@ -929,13 +829,13 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 	ModelSample t_answer;
 	int isin_n, isin_p;
 
-	if(bb_width < MIN_BB || bb_height < MIN_BB || bb_width > frame_width || bb_height > frame_width)
-	{
+	if(bb_width < MIN_BB || bb_height < MIN_BB || bb_width > frame_width || bb_height > frame_width){
         printf("Invalid size\n");
         return false;
     }
 
 	SMOOTH(frame, blur_img);
+	/// Normalização dentro do Retrain
 	normalize(frame, blur_img, position, 0, 0, t_answer.image, t_answer.ens_img, t_answer.nn_img);
 	r_sim = relativeSimilarity(t_answer.nn_img, isin_p, isin_n);
 
@@ -945,8 +845,7 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 	bb_list.clear();
 
 	//Baixa variância || Forte negativo (Não é fraco negativo e nem positivo). Mudança brusca. || Similaridade forte com os negativos
-	if(!VAR_TEST(*var))
-	{
+	if(!VAR_TEST(*var)){
         printf("Low variance\n");
 		free(var);
 		t_answer.image.release();
@@ -954,8 +853,7 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 		t_answer.nn_img.release();
 		return false;
 	}
-	if(r_sim < 0.5)
-	{
+	if(r_sim < 0.5){
         printf("Fast change\n");
         free(var);
 		t_answer.image.release();
@@ -963,8 +861,7 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 		t_answer.nn_img.release();
 		return false;
 	}
-	if(isin_n != -1)
-	{
+	if(isin_n != -1){
         printf("In negative model.\n");
 		free(var);
 		t_answer.image.release();
@@ -976,8 +873,7 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 
 	setOverlapingWindows(position);
 
-	if(good_windows.empty() || bad_windows.empty())
-	{
+	if(good_windows.empty() || bad_windows.empty()){
 		t_answer.image.release();
 		t_answer.ens_img.release();
 		t_answer.nn_img.release();
@@ -999,12 +895,11 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 	float overl;
 	int sw_index;
 
-	for(candidate = last_ens_candidates.begin(); candidate != last_ens_candidates.end(); candidate++)
-	{
+	for(candidate = last_ens_candidates.begin(); candidate != last_ens_candidates.end(); candidate++){
         sw_index = (*candidate).scanning_windows_index;
         overl = overlap(scanning_windows[sw_index], position);
-        if(overl < BAD_WINDOW_TH)
-		{
+        if(overl < BAD_WINDOW_TH){
+            /// Normalização comentada dentro do Retrain
 			//normalize(frame, blur_img, *bb, 0, 0, sample.image, sample.ens_img, sample.nn_img);
 			sample.image = (*candidate).image;
 			sample.ens_img = (*candidate).ens_img;
@@ -1024,16 +919,14 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 	bad_samples.clear();
 	good_samples.clear();
 
-	if(show)
-	{
+	if(show) {
 		imshow(POSITIVE_WINDOW, dataset_p);
 		imshow(NEGATIVE_WINDOW, dataset_n);
 	}
 	clock_t end_g = clock();
 
 	double elapsed = (double)(end_g - start_g)*1000./CLOCKS_PER_SEC;
-	if(_DEBUG_DETECTOR && _DEBUG_PERF)
-	{
+	if(_DEBUG_DETECTOR && _DEBUG_PERF){
         printf("Neg: %d samples. Pos: %d samples\n", (int)object_model[0].size(), (int)object_model[1].size());
         printf("Retrain: %.2f ms\n", elapsed); ///NOTE: considera tempo do waitKey
     }
@@ -1041,8 +934,7 @@ bool Retrain(Mat frame, BoundingBox &position, bool show)
 }
 
 //Salva respostas que ainda são válidas em arquivo com nome name
-void saveAnswers(char *classifier_name, int option)
-{ //default = Sem conf, 1 = variance, 2 = average_vote, 3 = r_conf e c_conf
+void saveAnswers(char *classifier_name, int option){ //default = Sem conf, 1 = variance, 2 = average_vote, 3 = r_conf e c_conf
 	int window;
     char name[60];
 	vector<Candidate>::iterator candidate;
@@ -1050,14 +942,12 @@ void saveAnswers(char *classifier_name, int option)
     sprintf(name, "output/%s.yml", classifier_name);
 
     FILE *answers = fopen(name, "w");
-    if(!answers)
-		return;
+    if(!answers) return;
 
     fprintf(answers, "%%YAML:1.0\n");
     fprintf(answers, "option: %d\nn_samples: %d\n", option, (int)candidates.size());
 
-    switch(option)
-	{
+    switch(option){
 		case 1:
 			fprintf(answers, "obj_variance: %.2f\nthreshold: %.2f\n", obj_variance, VARIANCE_THRESHOLD);
 		break;
@@ -1072,12 +962,10 @@ void saveAnswers(char *classifier_name, int option)
     fprintf(answers, "samples:\n");
 
     candidate = candidates.begin();
-    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
+    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
         window = (*candidate).scanning_windows_index;
         fprintf(answers, " - {bb: [%.2f %.2f %.2f %.2f]", scanning_windows[window][0], scanning_windows[window][1], scanning_windows[window][2], scanning_windows[window][3]);
-        switch(option)
-		{
+        switch(option){
 			case 1:
 				fprintf(answers, ", variance: %.3f}\n", (*candidate).variance);
 			break;
@@ -1097,8 +985,7 @@ void saveAnswers(char *classifier_name, int option)
 }
 
 //Visualizar candidatos que passaram pela última etapa realizada
-void showRemainingScanningWindows(Mat image)
-{
+void showRemainingScanningWindows(Mat image){
 	Mat sg;
 	int window;
 	vector<Candidate>::iterator candidate;
@@ -1107,8 +994,7 @@ void showRemainingScanningWindows(Mat image)
 
     image.copyTo(sg);
 
-    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
+    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
         window = (*candidate).scanning_windows_index;
         p1.x = scanning_windows[window][0];
         p1.y = scanning_windows[window][1];
@@ -1123,8 +1009,7 @@ void showRemainingScanningWindows(Mat image)
 
 //Cascade classifier
 //Step 1: Filtrar pela variância
-void varianceFilter(Mat frame)
-{
+void varianceFilter(Mat frame){
 	vector<Candidate>::iterator candidate;
 	int i = 0;
 	float *var = getVariance(frame, scanning_windows);
@@ -1141,18 +1026,15 @@ void varianceFilter(Mat frame)
 }
 
 //Extrai da imagem os candidatos válidos
-void setCandidates(Mat frame)
-{
+void setCandidates(Mat frame){
     vector<Candidate>::iterator candidate;
     int sw_index;
     Mat blur_img;
 
     SMOOTH(frame, blur_img);
-    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
+    for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		sw_index = (*candidate).scanning_windows_index;
-		//ens_img recebe uma image filtrada com um filtro gaussiano (para evitar ruidos), isso é feito na função normalize
-		//nn_img é uma imagem normalizada, com média zero... também na função normalize
+		/// Normalização dentro do setCandidates
 		normalize(frame, blur_img, scanning_windows[sw_index], 0, 0, (*candidate).image, (*candidate).ens_img, (*candidate).nn_img);
 
         //Avalia candidatos no comitê
@@ -1167,8 +1049,7 @@ void setCandidates(Mat frame)
 void ensembleClassifier(){
     vector<Candidate>::iterator candidate;
 
-	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
+	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		(*candidate).average_vote = votes((*candidate).code);
 	}
 
@@ -1177,8 +1058,7 @@ void ensembleClassifier(){
 		candidates.end()
 	);
 
-	if(candidates.size() > FERN_MAX_OUTPUT)
-	{
+	if(candidates.size() > FERN_MAX_OUTPUT){
         //Ordem descendente de votos
 		sort(candidates.begin(), candidates.end(), [](Candidate c1, Candidate c2){return (c1.average_vote > c2.average_vote);});
 		candidates.erase(candidates.begin() + FERN_MAX_OUTPUT, candidates.end());
@@ -1187,138 +1067,54 @@ void ensembleClassifier(){
 	last_ens_candidates.assign(candidates.begin(), candidates.end()); //Guarda saída do comitê. Cópia independente
 }
 
-//Step 3: NN classifier - Possivelmente passa o endereco onde seram ecsritos as posicoes onde foram encontradas os objetos e suas confiabilidade
-void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int numeroQuadro, std::ofstream &outfile, string strSaidaTemplates)
-{
-
-	static int nNegativeNPositive[2] = {0,0};
-
+//Step 3: NN classifier
+void nearestNeighbor(vector<BoundingBox> &positions, vector<double> &conf, int frame_number, string strSaidaTemplates){
 	vector<Candidate>::iterator candidate;
 	int isin_p, isin_n; //ignorados
 	Mat view;
-	if(DEBUG_2)
-	{
-		vector<ModelSample>::iterator goodIterator;
-		for ( goodIterator = object_model[1].begin(); goodIterator < object_model[1].end(); goodIterator++ )
-		{
-			namedWindow( "goodSamples", WINDOW_AUTOSIZE ); // Create a window for display.
-			resizeWindow("goodSamples", 200,200);
-			imshow("goodSamples",(*goodIterator).image);
-			waitKey(100);
-		}
-	}
+	///NOTE: minhas alterações
+	static int nNegativeNPositive[2] = {0,0};
+	/// end
 
-	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
-		if(DEBUG_4)
-		{
-			//amostras positivas
-
-			vector<ModelSample>::iterator itpos;
-			for ( itpos = object_model[1].begin(); itpos < object_model[1].end(); itpos++ )
-			{
-				namedWindow( "goodSamples", WINDOW_AUTOSIZE ); // Create a window for display.
-				resizeWindow("goodSamples", 200,200);
-				imshow("goodSamples",(*itpos).image);
-				waitKey(100);
-			}
-			//bounding box dos candidatos
-			std::cout<<"scanningWindows index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<std::endl;
-			std::cout<<"scanningWindows index 1: "<<scanning_windows[(*candidate).scanning_windows_index][1]<<std::endl;
-			std::cout<<"scanningWindows index 2: "<<scanning_windows[(*candidate).scanning_windows_index][2]<<std::endl;
-			std::cout<<"scanningWindows index 3: "<<scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
-			std::cout<<"frame: "<<numeroQuadro<<std::endl;
-		}
+	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		fastSimilarity((*candidate).nn_img, (*candidate).r_sim, (*candidate).c_sim, isin_p, isin_n);
-		if(ESCRITA)
-		{
-			//numero do frame // coordenadas //scannigWindowsIndex
-			outfile<<numeroQuadro<<" ";
-			for(int i = 0 ; i<4 ; i++)
-			{
-				outfile<<scanning_windows[(*candidate).scanning_windows_index][i]<<" ";
-			}
-			outfile<<(*candidate).scanning_windows_index<<std::endl;
-			vector<ModelSample>::iterator modelIterator;
-			for ( int j = 0 ; j<2;j++)
-			{
-				for ( modelIterator = object_model[j].begin(); modelIterator < object_model[j].end(); modelIterator++ )
-				{
-					//Se houver pelo menos um exemplar novo
-					if(object_model[j].size() > nNegativeNPositive[j])
-					{
-						//Caso entre mais exemplares positivos e negativos ao mesmo tempo
-						for( int k = nNegativeNPositive[j] ; k < object_model[j].size(); k++,nNegativeNPositive[j]++  )
-						{
-							vector<int> compression_params;
-							compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-							compression_params.push_back(0);
-							//Positiva ou Negativa (1 ou 0)  + frame atual + ordem do Modelo(k)
-							imwrite( strSaidaTemplates + "/" +std::to_string(j) + " " + std::to_string(numeroQuadro)+" "+ std::to_string(k) + ".png", object_model[j][k].image, compression_params);
-						}
-					}
-				}
-			}
-		}
-		if(DEBUG_1)
-		{
-			namedWindow( "Debug", WINDOW_AUTOSIZE ); // Create a window for display.
-			resizeWindow("Debug", 200,200);
-			imshow("Debug",(*candidate).nn_img );
-			waitKey(100);
-		}
-		/* TODO
-			Vamos pegar todos os candidatos dentro desse for, olhar as delimitacoes da sua BB e compararar com o object model,
-		*/
-
-
 	}
-
-
 
 	candidates.erase(
 		remove_if(candidates.begin(), candidates.end(), [](Candidate c){return !NN_TEST(c.r_sim);}),
 		candidates.end()
 	);
 
-	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++)
-	{
+	for(candidate = candidates.begin(); candidate != candidates.end(); candidate++){
 		conf.push_back((*candidate).c_sim); //Adiciona cópia
 		positions.push_back(scanning_windows[(*candidate).scanning_windows_index]); //Adiciona cópia
-		//positions são as coordenadas de onde foram encontrados objetos!
 	}
 
-	if(DEBUG_1)
-	{
-		std::cout<<"index 0: "<<scanning_windows[(*candidate).scanning_windows_index][0]<<" index 1: "
-		<<scanning_windows[(*candidate).scanning_windows_index][1]<<" index 2: "<<
-		scanning_windows[(*candidate).scanning_windows_index][2]<<" index 3: "<<
-		scanning_windows[(*candidate).scanning_windows_index][3]<<std::endl;
-		vector<BoundingBox>::iterator iterador;
-
-		for (iterador = positions.begin(); iterador != positions.end(); iterador++ )
-		{
-            //std::cout<<"positions[0][0]:"<<(*iterador)[0]<<std::endl;
-            //vector<BoundingBox>::iterator iterador;
-            for ( auto it = iterador->begin() ; it != iterador->end(); it++ )
-            {
-                std::cout<<"positions:"<<*it<<std::endl;
-            }
-		}
-	}
+	///NOTE: minhas alterações
+	if(ESCRITA){
+			vector<BoundingBox>::iterator unnorm_model_it;
+            // para cada tipo (positivo negativo)
+			for(int i = 0; i < 2; i++){
+			    // verifico se o tamanho aumentou
+                if(unnorm_object_model[i].size() > nNegativeNPositive[i]){
+                    // escrevo as informações da bounding box equivalente antes de ser normalizada
+                    for(unnorm_model_it = unnorm_object_model[i].begin() + nNegativeNPositive[j]; unnorm_model_it < unnorm_object_model[i].end(); unnorm_model_it++, nNegativeNPositive[j]++){
+                        writeBBInfos(strSaidaTemplates, unnorm_object_model[unnorm_model_it], frame_number, i);
+					}
+				}
+			}
+    }
+	/// end
 }
 
 //Retorna bounding boxes que contém o objeto em 'positions' e suas respectivas similaridades conservativas em 'd_conf'
-bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number, std::ofstream &outfile, string strSaidaTemplates)
-{
-
+bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &d_conf, int frame_number){
 	last_ens_candidates.clear();
 	clock_t start_detection = clock();
 	detector_positions.clear();
     d_conf.clear();
 
-	if(object_model[0].empty() && object_model[1].empty())
-		return false; //Não foi treinado
+	if(object_model[0].empty() && object_model[1].empty()) return false; //Não foi treinado
 
     vector<Candidate>::iterator candidate;
     clock_t start_t, end_t;
@@ -1330,14 +1126,11 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
         (*candidate).scanning_windows_index = i;
 
 	char name[30];
-	if(_DEBUG_DETECTOR)
-	{
-        if(_DEBUG_PERF)
-		{
+	if(_DEBUG_DETECTOR){
+        if(_DEBUG_PERF){
 			printf("Initial: %d candidates\n", (int)candidates.size());
 		}
-		if(_DEBUG_WORKSPACE)
-		{
+		if(_DEBUG_WORKSPACE){
 			sprintf(name, "initial%d", frame_number);
 			saveAnswers(name, 0);
 			showRemainingScanningWindows(frame);
@@ -1345,25 +1138,22 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
     }
 
     start_t = clock();
-	varianceFilter(frame); // remove janela de baixa variancia (?)
+	varianceFilter(frame);
 	end_t = clock();
 
-    if(_DEBUG_DETECTOR)
-	{
-        if(_DEBUG_PERF)
-		{
+    if(_DEBUG_DETECTOR){
+        if(_DEBUG_PERF){
 			printf("Variance filter: %d candidates\n", (int)candidates.size());
 			elapsed = (double)(end_t - start_t)*1000 / CLOCKS_PER_SEC;
 			printf("Elapsed: %.3lf ms\n", elapsed);
 		}
-		if(_DEBUG_WORKSPACE)
-		{
+		if(_DEBUG_WORKSPACE){
 			sprintf(name, "variance%d", frame_number);
 			saveAnswers(name, 1);
 			showRemainingScanningWindows(frame);
 		}
     }
-
+    /// Normalização dentro do SetCandidates
     setCandidates(frame);
     start_t = clock();
     ensembleClassifier();
@@ -1386,7 +1176,7 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
     }
 
     start_t = clock();
-    nearestNeighbor(detector_positions, d_conf, frame_number, outfile, strSaidaTemplates); //saidas do detector, similaridade conservativa das amostras (?)
+    nearestNeighbor(detector_positions, d_conf);
     end_t = clock();
 
     if(_DEBUG_DETECTOR){
@@ -1410,11 +1200,7 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
 		printf("Detection: %.3lfs\n", elapsed);
 	}
 
-
-
-
-    if(detector_positions.empty())
-		return false;
+    if(detector_positions.empty()) return false;
 
 	return true;
 }
@@ -1423,6 +1209,10 @@ bool Detect(Mat frame, vector<BoundingBox> &detector_positions, vector<double> &
 void DetClear(){
 	object_model[0].clear();
 	object_model[1].clear();
+	///NOTE: minhas alterações
+	unnorm_object_model[0].clear();
+	unnorm_object_model[1].clear();
+	/// end
 	scanning_windows.clear();
 	dataset_p.release();
 	dataset_n.release();
@@ -1434,4 +1224,3 @@ void DetClear(){
         positive[i] = negative[i] = 0;
     }
 }
-
